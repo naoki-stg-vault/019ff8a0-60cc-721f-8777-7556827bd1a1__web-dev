@@ -702,7 +702,7 @@ export default function NailsPinkPalacePage() {
                 </div>
                 <div>
                   <p className="font-inter text-xs uppercase tracking-wider font-bold text-[#2B2B2B]">Ubicación</p>
-                  <p className="font-inter text-sm text-[#2B2B2B]/70">Costa Rica</p>
+                  <p className="font-inter text-sm text-[#2B2B2B]/70">Nails Pink Palace · Costa Rica</p>
                 </div>
               </div>
 
@@ -727,7 +727,19 @@ export default function NailsPinkPalacePage() {
               </div>
             </div>
 
-            <div className="pt-4">
+            <div className="p-5 bg-[#FAF6F1] rounded-2xl border border-[#2B2B2B]/10 space-y-1.5 text-xs font-inter">
+              <p className="uppercase tracking-wider font-bold text-[#2B2B2B] text-[11px]">
+                Pago por SINPE Móvil
+              </p>
+              <p className="text-[#2B2B2B]">
+                Número: <strong className="font-bold text-[#E66C7D]">8735-7321</strong> (Valentina Cobaleda)
+              </p>
+              <p className="text-[#2B2B2B]/60 text-[11px]">
+                Se cancela al finalizar el servicio en el salón o en efectivo.
+              </p>
+            </div>
+
+            <div className="pt-2 flex flex-wrap items-center gap-3">
               <a
                 href={BUSINESS_INFO.locationUrl}
                 target="_blank"
@@ -740,30 +752,46 @@ export default function NailsPinkPalacePage() {
             </div>
           </div>
 
-          <div className="md:col-span-7">
-            <div className="bg-[#FAF6F1] p-8 md:p-12 rounded-3xl border border-[#2B2B2B]/10 relative overflow-hidden">
-              <div className="relative z-10 space-y-6">
-                <div className="flex items-center justify-between">
-                  <span className="font-playfair italic text-2xl text-[#E66C7D]">Nails Pink Palace</span>
-                  <span className="px-3 py-1 bg-green-100 text-green-800 text-[10px] uppercase font-bold tracking-wider rounded-full">
-                    Abierto Lun–Sáb
-                  </span>
-                </div>
-                <p className="font-inter text-sm text-[#2B2B2B]/80 leading-relaxed">
-                  Para tu comodidad y privacidad, atendemos únicamente con cita previa. Al agendar en nuestro sistema, reservamos el tiempo exclusivo para ti.
-                </p>
-                <div className="p-5 bg-white rounded-2xl border border-[#2B2B2B]/10 space-y-2">
-                  <p className="font-inter text-xs uppercase tracking-wider font-bold text-[#2B2B2B]">
-                    Información para pago SINPE Móvil
-                  </p>
-                  <p className="font-inter text-sm text-[#2B2B2B]">
-                    Número: <strong className="font-bold text-[#E66C7D]">8735-7321</strong>
-                  </p>
-                  <p className="font-inter text-xs text-[#2B2B2B]/60">
-                    A nombre de: Valentina Cobaleda (se cancela al finalizar el servicio).
-                  </p>
-                </div>
+          <div className="md:col-span-7 space-y-4">
+            <div className="relative w-full h-[420px] md:h-[460px] rounded-3xl overflow-hidden border border-[#2B2B2B]/10 shadow-lg bg-gray-100 group">
+              <iframe
+                src={BUSINESS_INFO.mapEmbedUrl}
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="strict-origin-when-cross-origin"
+                title="Ubicación de Nails Pink Palace en Google Maps"
+                className="w-full h-full"
+              />
+              <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-md px-4 py-2 rounded-2xl border border-[#2B2B2B]/10 shadow-sm flex items-center gap-2 pointer-events-none">
+                <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="font-playfair text-xs font-bold text-[#2B2B2B]">Nails Pink Palace</span>
               </div>
+            </div>
+
+            <div className="bg-[#FAF6F1] p-5 rounded-2xl border border-[#2B2B2B]/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-0.5 bg-green-100 text-green-800 text-[10px] uppercase font-bold tracking-wider rounded-full">
+                    Atención con Cita Previa
+                  </span>
+                  <span className="text-xs text-[#2B2B2B]/60 font-medium">Lun–Sáb 8:00 a.m. – 7:00 p.m.</span>
+                </div>
+                <p className="font-inter text-xs text-[#2B2B2B]/75">
+                  Para tu comodidad y privacidad, atendemos con reserva previa. Elige tu horario en nuestro agendador en línea.
+                </p>
+              </div>
+              <a
+                href={BUSINESS_INFO.locationUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="px-5 py-2.5 rounded-full bg-[#E66C7D] text-white font-inter text-xs uppercase tracking-wider font-semibold hover:bg-[#d45668] transition-colors shadow-sm inline-flex items-center gap-1.5 whitespace-nowrap shrink-0"
+              >
+                <span>Cómo Llegar</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </a>
             </div>
           </div>
         </div>

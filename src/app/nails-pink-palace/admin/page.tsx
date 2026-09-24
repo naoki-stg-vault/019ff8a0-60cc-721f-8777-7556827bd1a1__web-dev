@@ -34,6 +34,7 @@ import {
   Star,
   X,
   Plus,
+  ArrowUpRight,
 } from "lucide-react";
 
 const IMAGE_PRESETS = [
@@ -1202,6 +1203,21 @@ export default function NailsPinkPalaceAdminPage() {
                   <span className="font-bold text-[#2B2B2B] text-sm">
                     Lunes a Sábado, 8:00 AM – 7:00 PM
                   </span>
+                </div>
+
+                <div className="p-4 rounded-xl bg-[#FAF6F1]">
+                  <span className="text-gray-500 block uppercase tracking-wider text-[10px]">
+                    Ubicación Google Maps
+                  </span>
+                  <a
+                    href={BUSINESS_INFO.locationUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-bold text-[#E66C7D] hover:underline text-sm inline-flex items-center gap-1 mt-0.5"
+                  >
+                    <span>Abrir en Google Maps</span>
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  </a>
                 </div>
               </div>
             </div>

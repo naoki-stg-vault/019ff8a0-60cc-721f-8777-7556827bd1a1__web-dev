@@ -145,7 +145,9 @@ export const BUSINESS_INFO = {
   phone: "8735-7321",
   whatsappUrl: "https://wa.me/50687357321",
   email: "vale.coba.vcp@gmail.com",
-  locationUrl: "https://maps.app.goo.gl/BqSg3E39qPKYh9vS6?g_st=ic",
+  locationUrl: "https://maps.app.goo.gl/endvYHJ5dbaiz6hV6",
+  mapEmbedUrl:
+    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3924.7539286738665!2d-84.50030562425091!3d10.3615498667077!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8fa06f007e63922d%3A0x2cb0f62f38ee922d!2sNails%20Pink%20Palace!5e0!3m2!1ses-419!2scr!4v1790287161479!5m2!1ses-419!2scr",
   address: "Costa Rica",
   description:
     "Servicio profesional en manicura y pedicura. Trabajamos todas las técnicas de uñas de salón (excepto acrílico), diseños personalizados, esmaltado semipermanente sobre uña natural, pedicure Spa + remoción de callos, limpieza e hidratación.",
