@@ -11,6 +11,7 @@
 
   --font-sans: var(--font-grotesk), "Avenir Next", "Helvetica Neue", Arial, sans-serif;
   --font-serif: var(--font-fraunces), "Georgia", serif;
+  --font-playfair: var(--font-playfair), "Playfair Display", Georgia, serif;
 }
 
 @layer utilities {
@@ -64,6 +65,10 @@ body {
   font-weight: 470;
   font-variation-settings: "opsz" 144, "SOFT" 100, "WONK" 1;
   text-wrap: balance;
+}
+
+.font-playfair {
+  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
 }
 
 /* scroll-reveal: cinematic blur-in */
