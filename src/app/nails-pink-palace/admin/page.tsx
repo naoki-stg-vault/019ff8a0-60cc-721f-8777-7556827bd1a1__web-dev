@@ -20,13 +20,13 @@ import {
   INITIAL_SAMPLE_APPOINTMENTS,
 } from "@/lib/nails-data";
 
-const PHOTO_PRESETS = [
+const IMAGE_PRESETS = [
   {
     name: "Rubber Base",
     url: "https://images.unsplash.com/photo-1632345031435-8727f6897d53?auto=format&fit=crop&w=800&q=80",
   },
   {
-    name: "Polygel Elegante",
+    name: "Polygel",
     url: "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=800&q=80",
   },
   {
@@ -38,27 +38,23 @@ const PHOTO_PRESETS = [
     url: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80",
   },
   {
-    name: "Gel X Full Set",
+    name: "Gel X",
     url: "https://images.unsplash.com/photo-1599940824399-b87987ceb72a?auto=format&fit=crop&w=800&q=80",
   },
   {
-    name: "Gel con Calcio",
+    name: "Gel Calcio",
     url: "https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&w=800&q=80",
   },
   {
-    name: "Extensión Sofisticada",
+    name: "Extensión",
     url: "https://images.unsplash.com/photo-1583001931096-959e9a1a6223?auto=format&fit=crop&w=800&q=80",
   },
   {
-    name: "Exfoliación & Masaje",
-    url: "https://images.unsplash.com/photo-1512290900672-1f02e078eb14?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    name: "Esmaltado Semipermanente",
+    name: "Semipermanente",
     url: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=800&q=80",
   },
   {
-    name: "Diseño & Arte Pastel",
+    name: "Nail Art",
     url: "https://images.unsplash.com/photo-1519415943484-9fa1873496d4?auto=format&fit=crop&w=800&q=80",
   },
 ];
@@ -68,31 +64,30 @@ export default function NailsPinkPalaceAdminPage() {
   const [services, setServices] = useState<NailService[]>(NAIL_SERVICES);
   const [notificationSettings, setNotificationSettings] =
     useState<NotificationSettings>(DEFAULT_NOTIFICATIONS);
-  const [adminStatusFilter, setAdminStatusFilter] = useState<string>("todas");
-  const [adminSearch, setAdminSearch] = useState<string>("");
-  const [serviceCategoryFilter, setServiceCategoryFilter] =
-    useState<string>("todos");
-  const [activeTab, setActiveTab] = useState<
-    "citas" | "servicios" | "configuracion"
-  >("citas");
+  const [activeTab, setActiveTab] = useState<"citas" | "servicios" | "configuracion">("citas");
   const [savedFeedback, setSavedFeedback] = useState<string>("");
 
-  // New manual appointment modal
+  // Appointments Filters
+  const [adminStatusFilter, setAdminStatusFilter] = useState<string>("todas");
+  const [adminSearch, setAdminSearch] = useState<string>("");
+
+  // Services Filters
+  const [servicesCategoryFilter, setServicesCategoryFilter] = useState<string>("todas");
+  const [servicesSearch, setServicesSearch] = useState<string>("");
+
+  // Manual appointment modal
   const [isNewAppointmentOpen, setIsNewAppointmentOpen] = useState(false);
   const [newClientName, setNewClientName] = useState("");
   const [newClientPhone, setNewClientPhone] = useState("");
   const [newClientEmail, setNewClientEmail] = useState("");
-  const [newServiceId, setNewServiceId] = useState(NAIL_SERVICES[0].id);
+  const [newServiceId, setNewServiceId] = useState("");
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState("09:00");
-  const [newPaymentMethod, setNewPaymentMethod] =
-    useState<PaymentMethod>("sinpe");
+  const [newPaymentMethod, setNewPaymentMethod] = useState<PaymentMethod>("sinpe");
   const [newNotes, setNewNotes] = useState("");
 
   // Reschedule appointment modal
-  const [rescheduleTarget, setRescheduleTarget] = useState<Appointment | null>(
-    null
-  );
+  const [rescheduleTarget, setRescheduleTarget] = useState<Appointment | null>(null);
   const [rescheduleDate, setRescheduleDate] = useState("");
   const [rescheduleTime, setRescheduleTime] = useState("");
   const [rescheduleServiceId, setRescheduleServiceId] = useState("");
@@ -100,51 +95,57 @@ export default function NailsPinkPalaceAdminPage() {
 
   // Service Edit / Create modal
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
-  const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
-  const [serviceName, setServiceName] = useState("");
-  const [serviceCategory, setServiceCategory] = useState<
-    "manicura" | "pedicura" | "cuidado"
-  >("manicura");
-  const [serviceDurationMin, setServiceDurationMin] = useState(90);
-  const [servicePriceCRC, setServicePriceCRC] = useState(10000);
-  const [serviceImage, setServiceImage] = useState(PHOTO_PRESETS[0].url);
-  const [serviceDescription, setServiceDescription] = useState("");
-  const [servicePopular, setServicePopular] = useState(false);
+  const [editingServiceId, setEditingServiceId] = useState<string | null>(null); // null = new service
+  const [serviceFormName, setServiceFormName] = useState("");
+  const [serviceFormCategory, setServiceFormCategory] = useState<"manicura" | "pedicura" | "cuidado">("manicura");
+  const [serviceFormDuration, setServiceFormDuration] = useState<number>(90);
+  const [serviceFormPrice, setServiceFormPrice] = useState<number>(10000);
+  const [serviceFormDescription, setServiceFormDescription] = useState("");
+  const [serviceFormImage, setServiceFormImage] = useState(IMAGE_PRESETS[0].url);
+  const [serviceFormPopular, setServiceFormPopular] = useState(false);
+
+  // Today string for min dates
+  const todayStr = useMemo(() => {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, "0");
+    const d = String(now.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }, []);
 
   // Hydrate from localStorage
   useEffect(() => {
     try {
+      // 1. Appointments
       const storedApps = localStorage.getItem("npp_appointments");
       if (storedApps) {
         setAppointments(JSON.parse(storedApps));
       } else {
         setAppointments(INITIAL_SAMPLE_APPOINTMENTS);
-        localStorage.setItem(
-          "npp_appointments",
-          JSON.stringify(INITIAL_SAMPLE_APPOINTMENTS)
-        );
+        localStorage.setItem("npp_appointments", JSON.stringify(INITIAL_SAMPLE_APPOINTMENTS));
       }
 
+      // 2. Services
       const storedServices = localStorage.getItem("npp_services");
       if (storedServices) {
-        try {
-          const parsed = JSON.parse(storedServices);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setServices(parsed);
-          }
-        } catch {
-          /* ignore */
+        const parsed = JSON.parse(storedServices);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setServices(parsed);
+          setNewServiceId(parsed[0].id);
         }
       } else {
         localStorage.setItem("npp_services", JSON.stringify(NAIL_SERVICES));
+        setNewServiceId(NAIL_SERVICES[0].id);
       }
 
+      // 3. Notification settings
       const storedNotifs = localStorage.getItem("npp_notification_settings");
       if (storedNotifs) {
         setNotificationSettings(JSON.parse(storedNotifs));
       }
     } catch {
       setAppointments(INITIAL_SAMPLE_APPOINTMENTS);
+      setServices(NAIL_SERVICES);
     }
 
     const handleStorageChange = (e: StorageEvent) => {
@@ -154,16 +155,12 @@ export default function NailsPinkPalaceAdminPage() {
           if (Array.isArray(parsed) && parsed.length > 0) {
             setServices(parsed);
           }
-        } catch {
-          /* ignore */
-        }
+        } catch { /* ignore */ }
       }
       if (e.key === "npp_appointments" && e.newValue) {
         try {
           setAppointments(JSON.parse(e.newValue));
-        } catch {
-          /* ignore */
-        }
+        } catch { /* ignore */ }
       }
     };
     window.addEventListener("storage", handleStorageChange);
@@ -191,10 +188,7 @@ export default function NailsPinkPalaceAdminPage() {
   const saveNotificationSettings = (newSettings: NotificationSettings) => {
     setNotificationSettings(newSettings);
     try {
-      localStorage.setItem(
-        "npp_notification_settings",
-        JSON.stringify(newSettings)
-      );
+      localStorage.setItem("npp_notification_settings", JSON.stringify(newSettings));
       showFeedback("Configuración de notificaciones guardada");
     } catch {
       /* ignore */
@@ -208,7 +202,7 @@ export default function NailsPinkPalaceAdminPage() {
     }, 3500);
   };
 
-  // Appointment Status Changes
+  // Appointment Actions
   const handleStatusChange = (id: string, newStatus: AppointmentStatus) => {
     const updated = appointments.map((app) =>
       app.id === id ? { ...app, status: newStatus } : app
@@ -218,9 +212,7 @@ export default function NailsPinkPalaceAdminPage() {
   };
 
   const handleDeleteAppointment = (id: string) => {
-    if (
-      confirm("¿Estás segura de eliminar permanentemente esta cita del sistema?")
-    ) {
+    if (confirm("¿Estás segura de eliminar permanentemente esta cita del sistema?")) {
       const updated = appointments.filter((app) => app.id !== id);
       saveAppointments(updated);
       showFeedback("Cita eliminada");
@@ -228,17 +220,13 @@ export default function NailsPinkPalaceAdminPage() {
   };
 
   const handleResetSampleData = () => {
-    if (
-      confirm(
-        "¿Deseas restaurar las citas de ejemplo originales? Se perderán las citas actuales."
-      )
-    ) {
+    if (confirm("¿Deseas restaurar las citas de ejemplo originales? Se perderán las citas actuales.")) {
       saveAppointments(INITIAL_SAMPLE_APPOINTMENTS);
       showFeedback("Datos de citas restaurados");
     }
   };
 
-  // Reschedule logic
+  // Rescheduling logic
   const openRescheduleModal = (app: Appointment) => {
     setRescheduleTarget(app);
     setRescheduleDate(app.date);
@@ -247,176 +235,50 @@ export default function NailsPinkPalaceAdminPage() {
     setRescheduleNotes(app.notes || "");
   };
 
-  const availableRescheduleSlots = useMemo(() => {
+  const rescheduleAvailableSlots = useMemo(() => {
     if (!rescheduleTarget || !rescheduleDate) return [];
-    const chosenService =
-      services.find((s) => s.id === rescheduleServiceId) ||
-      services.find((s) => s.id === rescheduleTarget.serviceId) ||
-      services[0];
-    const otherApps = appointments.filter((a) => a.id !== rescheduleTarget.id);
-    return getAvailableSlots(
-      rescheduleDate,
-      chosenService.durationMin,
-      otherApps
-    );
+    const activeSrv = services.find((s) => s.id === rescheduleServiceId) || services[0];
+    // Exclude the current appointment from overlap conflict
+    const otherAppointments = appointments.filter((a) => a.id !== rescheduleTarget.id);
+    return getAvailableSlots(rescheduleDate, activeSrv.durationMin, otherAppointments);
   }, [rescheduleTarget, rescheduleDate, rescheduleServiceId, services, appointments]);
 
-  const handleSaveReschedule = (e: React.FormEvent) => {
+  const handleConfirmReschedule = (e: React.FormEvent) => {
     e.preventDefault();
     if (!rescheduleTarget || !rescheduleDate || !rescheduleTime) {
-      alert("Por favor selecciona una fecha y una hora.");
+      alert("Por favor selecciona la nueva fecha y hora.");
       return;
     }
 
-    const srv =
-      services.find((s) => s.id === rescheduleServiceId) ||
-      services.find((s) => s.id === rescheduleTarget.serviceId) ||
-      services[0];
-    const endTime = addMinutesToTime(rescheduleTime, srv.durationMin);
+    const service = services.find((s) => s.id === rescheduleServiceId) || services[0];
+    const endTime = addMinutesToTime(rescheduleTime, service.durationMin);
 
-    const updated = appointments.map((a) =>
-      a.id === rescheduleTarget.id
-        ? {
-            ...a,
-            serviceId: srv.id,
-            serviceName: srv.name,
-            durationMin: srv.durationMin,
-            priceCRC: srv.priceCRC,
-            date: rescheduleDate,
-            time: rescheduleTime,
-            endTime,
-            status: "confirmada" as const,
-            notes: rescheduleNotes.trim()
-              ? `${rescheduleNotes.trim()} [Reagendada para ${rescheduleDate} ${rescheduleTime}]`
-              : `Reagendada para ${rescheduleDate} a las ${rescheduleTime}`,
-          }
-        : a
-    );
+    const updated = appointments.map((app) => {
+      if (app.id === rescheduleTarget.id) {
+        return {
+          ...app,
+          serviceId: service.id,
+          serviceName: service.name,
+          priceCRC: service.priceCRC,
+          durationMin: service.durationMin,
+          date: rescheduleDate,
+          time: rescheduleTime,
+          endTime,
+          status: "confirmada" as const,
+          notes: rescheduleNotes.trim()
+            ? `${rescheduleNotes.trim()} (Reagendada para el ${rescheduleDate} a las ${formatTime12h(rescheduleTime)})`
+            : `Reagendada para el ${rescheduleDate} a las ${formatTime12h(rescheduleTime)}`,
+        };
+      }
+      return app;
+    });
 
     saveAppointments(updated);
-
-    // Prepare notification link
-    const notifyClient = confirm(
-      `¡Cita reagendada exitosamente!\n\n¿Deseas abrir WhatsApp para enviarle la confirmación del nuevo horario a ${rescheduleTarget.clientName}?`
-    );
-
-    if (notifyClient) {
-      const text = `¡Hola ${rescheduleTarget.clientName}! Te saludamos de Nails Pink Palace con Valentina. Te confirmamos que tu cita para *${srv.name}* ha sido reagendada para el día *${rescheduleDate}* a las *${formatTime12h(rescheduleTime)}*.\n\nMonto: ${formatCRC(srv.priceCRC)} (${rescheduleTarget.paymentMethod === "sinpe" ? "SINPE Móvil: 8735-7321" : "Efectivo"}).\nUbicación: https://maps.app.goo.gl/BqSg3E39qPKYh9vS6?g_st=ic\n\n¡Te esperamos con gusto!`;
-      const url = createWhatsAppMessageUrl(rescheduleTarget.clientPhone, text);
-      window.open(url, "_blank");
-    }
-
+    const updatedApp = updated.find((a) => a.id === rescheduleTarget.id)!;
     setRescheduleTarget(null);
-    showFeedback("Cita reagendada con éxito");
+    showFeedback(`Cita de ${updatedApp.clientName} reagendada con éxito`);
   };
 
-  // Service Catalog Actions
-  const handleOpenAddService = () => {
-    setEditingServiceId(null);
-    setServiceName("");
-    setServiceCategory("manicura");
-    setServiceDurationMin(90);
-    setServicePriceCRC(12000);
-    setServiceImage(PHOTO_PRESETS[0].url);
-    setServiceDescription("");
-    setServicePopular(false);
-    setIsServiceModalOpen(true);
-  };
-
-  const handleOpenEditService = (service: NailService) => {
-    setEditingServiceId(service.id);
-    setServiceName(service.name);
-    setServiceCategory(service.category);
-    setServiceDurationMin(service.durationMin);
-    setServicePriceCRC(service.priceCRC);
-    setServiceImage(service.image);
-    setServiceDescription(service.description);
-    setServicePopular(Boolean(service.popular));
-    setIsServiceModalOpen(true);
-  };
-
-  const handleDeleteService = (id: string) => {
-    if (services.length <= 1) {
-      alert("Debes mantener al menos un servicio en el catálogo.");
-      return;
-    }
-    const target = services.find((s) => s.id === id);
-    if (
-      confirm(
-        `¿Estás segura de eliminar el servicio "${target?.name}" del catálogo público?`
-      )
-    ) {
-      const updated = services.filter((s) => s.id !== id);
-      saveServices(updated);
-      showFeedback(`Servicio "${target?.name}" eliminado`);
-    }
-  };
-
-  const handleResetDefaultServices = () => {
-    if (
-      confirm(
-        "¿Deseas restaurar el catálogo predeterminado de 9 servicios originales? Se sobreescribirán los cambios."
-      )
-    ) {
-      saveServices(NAIL_SERVICES);
-      showFeedback("Catálogo de servicios restaurado al predeterminado");
-    }
-  };
-
-  const handleSaveService = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!serviceName.trim() || !serviceDescription.trim() || !serviceImage.trim()) {
-      alert("Por favor completa el nombre, descripción y URL de foto.");
-      return;
-    }
-
-    if (editingServiceId) {
-      // Update existing
-      const updated = services.map((s) =>
-        s.id === editingServiceId
-          ? {
-              ...s,
-              name: serviceName.trim(),
-              category: serviceCategory,
-              durationMin: Number(serviceDurationMin),
-              priceCRC: Number(servicePriceCRC),
-              image: serviceImage.trim(),
-              description: serviceDescription.trim(),
-              popular: servicePopular,
-            }
-          : s
-      );
-      saveServices(updated);
-      showFeedback(`Servicio "${serviceName.trim()}" actualizado`);
-    } else {
-      // Create new
-      const newId =
-        serviceName
-          .toLowerCase()
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .replace(/[^a-z0-9]+/g, "-")
-          .slice(0, 30) + `-${Date.now().toString().slice(-4)}`;
-
-      const newSrv: NailService = {
-        id: newId,
-        name: serviceName.trim(),
-        category: serviceCategory,
-        durationMin: Number(serviceDurationMin),
-        priceCRC: Number(servicePriceCRC),
-        image: serviceImage.trim(),
-        description: serviceDescription.trim(),
-        popular: servicePopular,
-      };
-
-      saveServices([...services, newSrv]);
-      showFeedback(`Nuevo servicio "${newSrv.name}" agregado al catálogo`);
-    }
-
-    setIsServiceModalOpen(false);
-  };
-
-  // Manual appointment creation
   const handleCreateManualAppointment = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newClientName.trim() || !newClientPhone.trim() || !newDate || !newTime) {
@@ -459,17 +321,98 @@ export default function NailsPinkPalaceAdminPage() {
     showFeedback("Nueva cita agendada exitosamente");
   };
 
+  // Service Management actions
+  const openNewServiceModal = () => {
+    setEditingServiceId(null);
+    setServiceFormName("");
+    setServiceFormCategory("manicura");
+    setServiceFormDuration(90);
+    setServiceFormPrice(12000);
+    setServiceFormDescription("");
+    setServiceFormImage(IMAGE_PRESETS[0].url);
+    setServiceFormPopular(false);
+    setIsServiceModalOpen(true);
+  };
+
+  const openEditServiceModal = (service: NailService) => {
+    setEditingServiceId(service.id);
+    setServiceFormName(service.name);
+    setServiceFormCategory(service.category);
+    setServiceFormDuration(service.durationMin);
+    setServiceFormPrice(service.priceCRC);
+    setServiceFormDescription(service.description);
+    setServiceFormImage(service.image);
+    setServiceFormPopular(Boolean(service.popular));
+    setIsServiceModalOpen(true);
+  };
+
+  const handleSaveService = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!serviceFormName.trim() || !serviceFormImage.trim() || serviceFormPrice <= 0 || serviceFormDuration <= 0) {
+      alert("Por favor completa todos los campos del servicio con valores válidos.");
+      return;
+    }
+
+    if (editingServiceId) {
+      // Edit existing
+      const updated = services.map((s) =>
+        s.id === editingServiceId
+          ? {
+              ...s,
+              name: serviceFormName.trim(),
+              category: serviceFormCategory,
+              durationMin: Number(serviceFormDuration),
+              priceCRC: Number(serviceFormPrice),
+              description: serviceFormDescription.trim(),
+              image: serviceFormImage.trim(),
+              popular: serviceFormPopular,
+            }
+          : s
+      );
+      saveServices(updated);
+      showFeedback(`Servicio "${serviceFormName}" actualizado con éxito`);
+    } else {
+      // Create new
+      const newId = `srv-${Date.now()}`;
+      const newService: NailService = {
+        id: newId,
+        name: serviceFormName.trim(),
+        category: serviceFormCategory,
+        durationMin: Number(serviceFormDuration),
+        priceCRC: Number(serviceFormPrice),
+        description: serviceFormDescription.trim(),
+        image: serviceFormImage.trim(),
+        popular: serviceFormPopular,
+      };
+      saveServices([...services, newService]);
+      showFeedback(`Servicio "${serviceFormName}" agregado al catálogo`);
+    }
+
+    setIsServiceModalOpen(false);
+  };
+
+  const handleDeleteService = (serviceId: string) => {
+    const service = services.find((s) => s.id === serviceId);
+    if (!service) return;
+    if (confirm(`¿Estás segura de eliminar el servicio "${service.name}" del catálogo? Las clientas ya no podrán reservarlo.`)) {
+      const updated = services.filter((s) => s.id !== serviceId);
+      saveServices(updated);
+      showFeedback(`Servicio "${service.name}" eliminado`);
+    }
+  };
+
+  const handleResetDefaultServices = () => {
+    if (confirm("¿Deseas restablecer el catálogo de servicios a los valores predeterminados originales? Se descartarán las modificaciones personalizadas.")) {
+      saveServices(NAIL_SERVICES);
+      showFeedback("Catálogo de servicios restablecido a los originales");
+    }
+  };
+
   // Metrics
   const totalAppointments = appointments.length;
-  const confirmedAppointments = appointments.filter(
-    (a) => a.status === "confirmada"
-  ).length;
-  const completedAppointments = appointments.filter(
-    (a) => a.status === "completada"
-  ).length;
-  const cancelledAppointments = appointments.filter(
-    (a) => a.status === "cancelada"
-  ).length;
+  const confirmedAppointments = appointments.filter((a) => a.status === "confirmada").length;
+  const completedAppointments = appointments.filter((a) => a.status === "completada").length;
+  const cancelledAppointments = appointments.filter((a) => a.status === "cancelada").length;
   const totalEstimatedRevenue = appointments
     .filter((a) => a.status !== "cancelada")
     .reduce((sum, a) => sum + a.priceCRC, 0);
@@ -495,11 +438,21 @@ export default function NailsPinkPalaceAdminPage() {
     });
   }, [appointments, adminStatusFilter, adminSearch]);
 
-  // Filtered services in catalog
+  // Filtered services
   const filteredServices = useMemo(() => {
-    if (serviceCategoryFilter === "todos") return services;
-    return services.filter((s) => s.category === serviceCategoryFilter);
-  }, [services, serviceCategoryFilter]);
+    return services.filter((s) => {
+      if (servicesCategoryFilter !== "todas" && s.category !== servicesCategoryFilter) {
+        return false;
+      }
+      if (servicesSearch.trim()) {
+        const query = servicesSearch.toLowerCase().trim();
+        const matchName = s.name.toLowerCase().includes(query);
+        const matchDesc = s.description.toLowerCase().includes(query);
+        if (!matchName && !matchDesc) return false;
+      }
+      return true;
+    });
+  }, [services, servicesCategoryFilter, servicesSearch]);
 
   const sendWhatsAppReminder = (app: Appointment) => {
     const text = `¡Hola ${app.clientName}! Te saludamos de Nails Pink Palace con Valentina. Te recordamos tu cita para *${app.serviceName}* el día *${app.date}* a las *${formatTime12h(app.time)}*.\n\nMonto: ${formatCRC(app.priceCRC)} (${app.paymentMethod === "sinpe" ? "SINPE Móvil: 8735-7321" : "Efectivo"}).\nUbicación: https://maps.app.goo.gl/BqSg3E39qPKYh9vS6?g_st=ic\n\n¿Nos confirmas tu asistencia? ¡Te esperamos!`;
@@ -507,9 +460,15 @@ export default function NailsPinkPalaceAdminPage() {
     window.open(url, "_blank");
   };
 
+  const sendWhatsAppRescheduleConfirmation = (app: Appointment) => {
+    const text = `¡Hola ${app.clientName}! Te confirmamos que tu cita en Nails Pink Palace para *${app.serviceName}* ha sido *reagendada* con éxito para el día *${app.date}* a las *${formatTime12h(app.time)}*.\n\nDuración estimada: ${app.durationMin} min.\nMonto: ${formatCRC(app.priceCRC)} (${app.paymentMethod === "sinpe" ? "SINPE Móvil: 8735-7321" : "Efectivo"}).\nUbicación: https://maps.app.goo.gl/BqSg3E39qPKYh9vS6?g_st=ic\n\n¡Cualquier consulta estamos a la orden!`;
+    const url = createWhatsAppMessageUrl(app.clientPhone, text);
+    window.open(url, "_blank");
+  };
+
   return (
-    <div className="min-h-screen bg-[#FAF6F0] text-[#2B2B2B] font-inter antialiased selection:bg-[#E66C7D] selection:text-white pb-20">
-      {/* Top Banner with back link */}
+    <div className="min-h-screen bg-[#FAF6F0] text-[#2B2B2B] font-inter antialiased selection:bg-[#E66C7D] selection:text-white">
+      {/* Top Banner */}
       <header className="sticky top-0 z-40 bg-[#2B2B2B] text-white border-b border-white/10 shadow-md">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -527,20 +486,20 @@ export default function NailsPinkPalaceAdminPage() {
                   Nails Pink Palace
                 </span>
                 <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-[#E66C7D]/20 text-[#E66C7D] border border-[#E66C7D]/30">
-                  Panel Admin
+                  Panel de Administración
                 </span>
               </div>
               <p className="text-[11px] text-white/60 hidden md:block">
-                Gestión de Citas, Reagendación y Catálogo para Valentina Cobaleda
+                Gestión integral de citas y catálogo para Valentina Cobaleda Pallares
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             {activeTab === "servicios" ? (
               <button
                 type="button"
-                onClick={handleOpenAddService}
+                onClick={openNewServiceModal}
                 className="px-4 py-2 rounded-full bg-[#E66C7D] text-white text-xs uppercase tracking-wider font-semibold hover:bg-[#d45668] transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1.5"
               >
                 <span className="text-sm font-bold">+</span>
@@ -553,7 +512,7 @@ export default function NailsPinkPalaceAdminPage() {
                 className="px-4 py-2 rounded-full bg-[#E66C7D] text-white text-xs uppercase tracking-wider font-semibold hover:bg-[#d45668] transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1.5"
               >
                 <span className="text-sm font-bold">+</span>
-                <span>Agendar Cita</span>
+                <span>Nueva Cita</span>
               </button>
             )}
           </div>
@@ -569,58 +528,59 @@ export default function NailsPinkPalaceAdminPage() {
       )}
 
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Page Title & Navigation Tabs */}
+        {/* Navigation Tabs */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#2B2B2B]/10 pb-4">
           <div>
             <h1 className="font-playfair text-3xl font-bold tracking-tight text-[#2B2B2B]">
-              Panel de Administración
+              {activeTab === "citas" && "Gestión de Citas"}
+              {activeTab === "servicios" && "Catálogo de Servicios"}
+              {activeTab === "configuracion" && "Configuración de Notificaciones"}
             </h1>
             <p className="text-xs text-[#2B2B2B]/60 mt-1">
-              Control total de citas, reagendaciones y edición del catálogo visible en la web.
+              {activeTab === "citas" && "Revisa, agenda, reagenda y administra las reservas de tus clientas."}
+              {activeTab === "servicios" && "Edita fotos, precios, duración y descripciones que se muestran en el sitio web."}
+              {activeTab === "configuracion" && "Ajusta las notificaciones de WhatsApp, Google Calendar y correos."}
             </p>
           </div>
 
-          {/* Tab Navigation */}
-          <div className="flex items-center gap-1.5 bg-white p-1.5 rounded-2xl border border-[#2B2B2B]/10 shadow-sm self-start sm:self-auto overflow-x-auto max-w-full">
+          <div className="flex items-center gap-2 bg-white p-1 rounded-2xl border border-[#2B2B2B]/10 shadow-sm self-start sm:self-auto">
             <button
               type="button"
               onClick={() => setActiveTab("citas")}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all whitespace-nowrap ${
+              className={`px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all ${
                 activeTab === "citas"
                   ? "bg-[#2B2B2B] text-white shadow-sm"
                   : "text-[#2B2B2B]/70 hover:text-[#2B2B2B] hover:bg-gray-100"
               }`}
             >
-              📅 Citas ({appointments.length})
+              Citas ({appointments.length})
             </button>
             <button
               type="button"
               onClick={() => setActiveTab("servicios")}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all whitespace-nowrap ${
+              className={`px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all ${
                 activeTab === "servicios"
                   ? "bg-[#2B2B2B] text-white shadow-sm"
                   : "text-[#2B2B2B]/70 hover:text-[#2B2B2B] hover:bg-gray-100"
               }`}
             >
-              💅 Catálogo ({services.length})
+              Servicios ({services.length})
             </button>
             <button
               type="button"
               onClick={() => setActiveTab("configuracion")}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all whitespace-nowrap ${
+              className={`px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all ${
                 activeTab === "configuracion"
                   ? "bg-[#2B2B2B] text-white shadow-sm"
                   : "text-[#2B2B2B]/70 hover:text-[#2B2B2B] hover:bg-gray-100"
               }`}
             >
-              ⚙️ Configuración
+              Configuración
             </button>
           </div>
         </div>
 
-        {/* =================================================================== */}
-        {/* TAB 1: CITAS & REAGENDACIÓN                                         */}
-        {/* =================================================================== */}
+        {/* TAB 1: CITAS */}
         {activeTab === "citas" && (
           <div className="space-y-6">
             {/* Metrics Grid */}
@@ -680,18 +640,9 @@ export default function NailsPinkPalaceAdminPage() {
                 {(
                   [
                     { id: "todas", label: `Todas (${appointments.length})` },
-                    {
-                      id: "confirmada",
-                      label: `Confirmadas (${confirmedAppointments})`,
-                    },
-                    {
-                      id: "completada",
-                      label: `Completadas (${completedAppointments})`,
-                    },
-                    {
-                      id: "cancelada",
-                      label: `Canceladas (${cancelledAppointments})`,
-                    },
+                    { id: "confirmada", label: `Confirmadas (${confirmedAppointments})` },
+                    { id: "completada", label: `Completadas (${completedAppointments})` },
+                    { id: "cancelada", label: `Canceladas (${cancelledAppointments})` },
                   ] as const
                 ).map((tab) => (
                   <button
@@ -746,7 +697,7 @@ export default function NailsPinkPalaceAdminPage() {
                       <th className="p-4">Fecha & Hora</th>
                       <th className="p-4">Monto & Pago</th>
                       <th className="p-4">Estado</th>
-                      <th className="p-4 text-right">Acciones & Reagendar</th>
+                      <th className="p-4 text-right">Acciones</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
@@ -781,7 +732,7 @@ export default function NailsPinkPalaceAdminPage() {
                               </div>
                             )}
                             {app.notes && (
-                              <div className="mt-1 text-[11px] text-[#E66C7D] bg-[#E66C7D]/10 px-2 py-0.5 rounded-md inline-block max-w-xs truncate">
+                              <div className="mt-1 text-[11px] text-[#E66C7D] bg-[#E66C7D]/10 px-2 py-0.5 rounded-md inline-block max-w-xs break-words">
                                 📝 {app.notes}
                               </div>
                             )}
@@ -799,10 +750,10 @@ export default function NailsPinkPalaceAdminPage() {
 
                           {/* Date & Time */}
                           <td className="p-4">
-                            <div className="font-semibold text-[#2B2B2B]">
+                            <div className="font-medium text-[#2B2B2B]">
                               📅 {app.date}
                             </div>
-                            <div className="text-[11px] text-gray-500 font-medium mt-0.5">
+                            <div className="text-[11px] text-gray-500 font-semibold mt-0.5">
                               {formatTime12h(app.time)} – {formatTime12h(app.endTime)}
                             </div>
                           </td>
@@ -843,15 +794,15 @@ export default function NailsPinkPalaceAdminPage() {
                             </span>
                           </td>
 
-                          {/* Actions: Reagendar & Status */}
+                          {/* Actions */}
                           <td className="p-4 text-right">
-                            <div className="inline-flex items-center justify-end gap-2 flex-wrap">
-                              {/* REAGENDAR BUTTON */}
+                            <div className="inline-flex items-center justify-end gap-2">
+                              {/* Reagendar button */}
                               <button
                                 type="button"
                                 onClick={() => openRescheduleModal(app)}
                                 title="Reagendar fecha u hora de esta cita"
-                                className="px-3 py-1.5 rounded-lg bg-[#E66C7D]/10 hover:bg-[#E66C7D]/20 text-[#E66C7D] font-semibold text-xs border border-[#E66C7D]/30 transition-all flex items-center gap-1"
+                                className="px-2.5 py-1.5 rounded-lg bg-[#E66C7D]/10 text-[#E66C7D] hover:bg-[#E66C7D] hover:text-white transition-all font-semibold flex items-center gap-1 border border-[#E66C7D]/30"
                               >
                                 <span>🗓️</span>
                                 <span>Reagendar</span>
@@ -929,52 +880,58 @@ export default function NailsPinkPalaceAdminPage() {
           </div>
         )}
 
-        {/* =================================================================== */}
-        {/* TAB 2: CATÁLOGO DE SERVICIOS (EDITABLE EN TODO)                     */}
-        {/* =================================================================== */}
+        {/* TAB 2: SERVICIOS */}
         {activeTab === "servicios" && (
           <div className="space-y-6">
-            {/* Header / Category Filters for Catalog */}
+            {/* Header controls for services */}
             <div className="bg-white p-5 rounded-2xl border border-[#2B2B2B]/10 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs font-semibold uppercase tracking-wider text-[#2B2B2B]/60 mr-1">
                   Categoría:
                 </span>
-                {[
-                  { id: "todos", label: "Todos los servicios" },
-                  { id: "manicura", label: "Manicura" },
-                  { id: "pedicura", label: "Pedicura" },
-                  { id: "cuidado", label: "Cuidado & Spa" },
-                ].map((c) => (
+                {(
+                  [
+                    { id: "todas", label: `Todos (${services.length})` },
+                    { id: "manicura", label: `Manicura (${services.filter((s) => s.category === "manicura").length})` },
+                    { id: "pedicura", label: `Pedicura (${services.filter((s) => s.category === "pedicura").length})` },
+                    { id: "cuidado", label: `Cuidado (${services.filter((s) => s.category === "cuidado").length})` },
+                  ] as const
+                ).map((cat) => (
                   <button
-                    key={c.id}
+                    key={cat.id}
                     type="button"
-                    onClick={() => setServiceCategoryFilter(c.id)}
+                    onClick={() => setServicesCategoryFilter(cat.id)}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      serviceCategoryFilter === c.id
+                      servicesCategoryFilter === cat.id
                         ? "bg-[#2B2B2B] text-white shadow-sm"
                         : "bg-[#FAF6F0] text-[#2B2B2B]/70 hover:text-[#2B2B2B] hover:bg-gray-200"
                     }`}
                   >
-                    {c.label}
+                    {cat.label}
                   </button>
                 ))}
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
+                <div className="relative w-full md:w-64">
+                  <input
+                    type="text"
+                    placeholder="Buscar servicio..."
+                    value={servicesSearch}
+                    onChange={(e) => setServicesSearch(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2 rounded-xl border border-gray-200 text-xs focus:outline-none focus:border-[#E66C7D] transition-colors"
+                  />
+                  <span className="absolute left-3 top-2.5 text-gray-400 text-xs">
+                    🔍
+                  </span>
+                </div>
+
                 <button
                   type="button"
-                  onClick={handleOpenAddService}
-                  className="px-4 py-2 rounded-xl bg-[#E66C7D] text-white text-xs font-semibold hover:bg-[#d45668] transition-all shadow-sm"
+                  onClick={openNewServiceModal}
+                  className="px-4 py-2 rounded-xl bg-[#E66C7D] text-white text-xs font-semibold hover:bg-[#d45668] transition-all whitespace-nowrap"
                 >
-                  + Agregar Nuevo Servicio
-                </button>
-                <button
-                  type="button"
-                  onClick={handleResetDefaultServices}
-                  className="px-3 py-2 rounded-xl border border-gray-200 text-xs text-gray-600 hover:bg-gray-100 transition-colors"
-                >
-                  Restablecer Predeterminados
+                  + Agregar Servicio
                 </button>
               </div>
             </div>
@@ -984,76 +941,83 @@ export default function NailsPinkPalaceAdminPage() {
               {filteredServices.map((service) => (
                 <div
                   key={service.id}
-                  className="bg-white rounded-3xl border border-[#2B2B2B]/10 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between group"
+                  className="bg-white rounded-3xl overflow-hidden border border-[#2B2B2B]/10 hover:border-[#E66C7D]/40 transition-all shadow-sm flex flex-col justify-between"
                 >
                   <div>
-                    {/* Image with overlay badge */}
+                    {/* Image with category & price badge */}
                     <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={service.image}
                         alt={service.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover"
                       />
                       <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-3 py-1 rounded-full font-playfair text-sm font-bold text-[#E66C7D] shadow-sm">
                         {formatCRC(service.priceCRC)}
                       </div>
-                      {service.popular && (
-                        <div className="absolute top-3 left-3 bg-[#E66C7D] text-white px-2.5 py-0.5 rounded-full font-inter text-[10px] uppercase tracking-wider font-semibold shadow-sm">
-                          ⭐ Favorito
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-5 space-y-2">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-gray-100 text-gray-600">
+                      <div className="absolute top-3 left-3 flex gap-1">
+                        <span className="bg-[#2B2B2B]/85 text-white px-2.5 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wider">
                           {service.category}
                         </span>
-                        <span className="text-xs text-gray-500 font-medium">
+                        {service.popular && (
+                          <span className="bg-[#E66C7D] text-white px-2.5 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wider">
+                            Favorito
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="p-5 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-playfair text-lg font-bold text-[#2B2B2B]">
+                          {service.name}
+                        </h3>
+                        <span className="text-xs text-[#2B2B2B]/70 font-medium">
                           ⏱ {service.durationMin} min
                         </span>
                       </div>
-
-                      <h3 className="font-playfair text-lg font-bold text-[#2B2B2B] leading-tight">
-                        {service.name}
-                      </h3>
-
-                      <p className="text-xs text-[#2B2B2B]/70 line-clamp-3 leading-relaxed">
-                        {service.description}
+                      <p className="text-xs text-[#2B2B2B]/70 line-clamp-2">
+                        {service.description || "Sin descripción"}
                       </p>
                     </div>
                   </div>
 
-                  {/* Card Actions */}
-                  <div className="p-5 pt-0 flex items-center justify-between border-t border-gray-100 mt-2">
+                  {/* Service actions */}
+                  <div className="p-5 pt-0 border-t border-gray-100 mt-2 flex items-center justify-between gap-2">
                     <button
                       type="button"
-                      onClick={() => handleOpenEditService(service)}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2B2B2B] hover:text-[#E66C7D] transition-colors py-2"
+                      onClick={() => openEditServiceModal(service)}
+                      className="flex-1 py-2 rounded-xl bg-gray-100 hover:bg-[#E66C7D] hover:text-white transition-colors text-xs font-semibold text-[#2B2B2B]"
                     >
-                      <span>✏️</span>
-                      <span>Editar Servicio</span>
+                      ✏️ Editar Servicio
                     </button>
-
                     <button
                       type="button"
                       onClick={() => handleDeleteService(service.id)}
-                      className="text-xs text-red-500 hover:text-red-700 py-2 transition-colors"
+                      className="px-3 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-colors text-xs font-semibold border border-red-200"
+                      title="Eliminar servicio"
                     >
-                      🗑 Eliminar
+                      🗑
                     </button>
                   </div>
                 </div>
               ))}
             </div>
+
+            {/* Restore defaults button */}
+            <div className="flex justify-end pt-4">
+              <button
+                type="button"
+                onClick={handleResetDefaultServices}
+                className="text-xs text-gray-500 hover:text-gray-800 underline"
+              >
+                Restablecer catálogo a los servicios predeterminados
+              </button>
+            </div>
           </div>
         )}
 
-        {/* =================================================================== */}
-        {/* TAB 3: CONFIGURACIÓN                                                */}
-        {/* =================================================================== */}
+        {/* TAB 3: CONFIGURACIÓN */}
         {activeTab === "configuracion" && (
           <div className="space-y-6 max-w-4xl">
             {/* Notification Integrations */}
@@ -1205,9 +1169,7 @@ export default function NailsPinkPalaceAdminPage() {
         )}
       </main>
 
-      {/* =================================================================== */}
-      {/* MODAL: REAGENDAR CITA                                               */}
-      {/* =================================================================== */}
+      {/* MODAL: REAGENDAR CITA */}
       {rescheduleTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
           <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-[#2B2B2B]/10 overflow-hidden my-8">
@@ -1229,31 +1191,28 @@ export default function NailsPinkPalaceAdminPage() {
               </button>
             </div>
 
-            <form onSubmit={handleSaveReschedule} className="p-6 space-y-4 text-xs">
-              {/* Current details box */}
-              <div className="p-3.5 bg-[#FAF6F1] rounded-2xl border border-[#2B2B2B]/10 space-y-1">
-                <span className="text-[10px] uppercase font-bold text-gray-500 tracking-wider">
+            <form onSubmit={handleConfirmReschedule} className="p-6 space-y-4 text-xs">
+              {/* Current schedule banner */}
+              <div className="p-3 bg-[#FAF6F1] rounded-2xl border border-gray-200 space-y-1">
+                <span className="text-gray-500 font-semibold block uppercase tracking-wider text-[10px]">
                   Horario actual programado:
                 </span>
-                <p className="font-bold text-[#2B2B2B] text-sm">
-                  📅 {rescheduleTarget.date} · ⏱ {formatTime12h(rescheduleTarget.time)} – {formatTime12h(rescheduleTarget.endTime)}
+                <p className="text-[#2B2B2B] font-bold">
+                  📅 {rescheduleTarget.date} · {formatTime12h(rescheduleTarget.time)} – {formatTime12h(rescheduleTarget.endTime)}
                 </p>
-                <p className="text-gray-600">
+                <p className="text-[#2B2B2B]/70">
                   Servicio: <strong>{rescheduleTarget.serviceName}</strong> ({formatCRC(rescheduleTarget.priceCRC)})
                 </p>
               </div>
 
-              {/* Service Selection */}
+              {/* Service selection (optional change) */}
               <div>
                 <label className="block font-semibold text-[#2B2B2B] mb-1">
                   Servicio a realizar
                 </label>
                 <select
                   value={rescheduleServiceId}
-                  onChange={(e) => {
-                    setRescheduleServiceId(e.target.value);
-                    setRescheduleTime("");
-                  }}
+                  onChange={(e) => setRescheduleServiceId(e.target.value)}
                   className="w-full p-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-[#E66C7D]"
                 >
                   {services.map((s) => (
@@ -1264,7 +1223,7 @@ export default function NailsPinkPalaceAdminPage() {
                 </select>
               </div>
 
-              {/* Date selection */}
+              {/* New Date */}
               <div>
                 <label className="block font-semibold text-[#2B2B2B] mb-1">
                   Nueva Fecha *
@@ -1272,6 +1231,7 @@ export default function NailsPinkPalaceAdminPage() {
                 <input
                   type="date"
                   required
+                  min={todayStr}
                   value={rescheduleDate}
                   onChange={(e) => {
                     setRescheduleDate(e.target.value);
@@ -1281,59 +1241,35 @@ export default function NailsPinkPalaceAdminPage() {
                 />
               </div>
 
-              {/* Time selection */}
+              {/* New Time */}
               {rescheduleDate && (
                 <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="font-semibold text-[#2B2B2B]">
-                      Nueva Hora *
-                    </label>
-                    <span className="text-[10px] text-gray-500">
-                      (8:00 AM – 7:00 PM)
-                    </span>
-                  </div>
-
-                  {availableRescheduleSlots.length === 0 ? (
-                    <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs">
-                      No hay horarios automáticos disponibles para este día (domingo cerrado o agenda llena). Puedes ingresar la hora manual abajo:
-                      <input
-                        type="time"
-                        value={rescheduleTime}
-                        onChange={(e) => setRescheduleTime(e.target.value)}
-                        className="mt-2 w-full p-2 rounded-lg border border-amber-300 bg-white"
-                      />
-                    </div>
+                  <label className="block font-semibold text-[#2B2B2B] mb-1">
+                    Nueva Hora Disponible *
+                  </label>
+                  {rescheduleAvailableSlots.length === 0 ? (
+                    <p className="text-xs text-red-500 italic p-3 bg-red-50 rounded-xl">
+                      No hay horarios disponibles en esta fecha (domingos cerrado o sin cupo). Elige otra fecha.
+                    </p>
                   ) : (
-                    <div>
-                      <div className="grid grid-cols-4 gap-2 max-h-36 overflow-y-auto p-1 border border-gray-100 rounded-xl">
-                        {availableRescheduleSlots.map((slot) => (
-                          <button
-                            key={slot.time}
-                            type="button"
-                            disabled={!slot.available}
-                            onClick={() => setRescheduleTime(slot.time)}
-                            className={`p-2 rounded-lg text-xs font-semibold text-center border transition-all ${
-                              !slot.available
-                                ? "opacity-40 bg-gray-100 border-gray-200 cursor-not-allowed text-gray-400"
-                                : rescheduleTime === slot.time
-                                ? "bg-[#E66C7D] text-white border-[#E66C7D] shadow-sm"
-                                : "bg-white text-[#2B2B2B] border-gray-200 hover:border-[#E66C7D]"
-                            }`}
-                          >
-                            {formatTime12h(slot.time)}
-                          </button>
-                        ))}
-                      </div>
-
-                      <div className="mt-2 flex items-center gap-2">
-                        <span className="text-gray-400 text-[11px]">O especificar hora exacta:</span>
-                        <input
-                          type="time"
-                          value={rescheduleTime}
-                          onChange={(e) => setRescheduleTime(e.target.value)}
-                          className="p-1 rounded-lg border border-gray-200 text-xs"
-                        />
-                      </div>
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-44 overflow-y-auto p-1 border border-gray-100 rounded-xl">
+                      {rescheduleAvailableSlots.map((slot) => (
+                        <button
+                          key={slot.time}
+                          type="button"
+                          disabled={!slot.available}
+                          onClick={() => setRescheduleTime(slot.time)}
+                          className={`p-2 rounded-xl text-xs font-semibold text-center border transition-all ${
+                            !slot.available
+                              ? "opacity-35 bg-gray-100 border-gray-200 cursor-not-allowed text-gray-400"
+                              : rescheduleTime === slot.time
+                              ? "bg-[#E66C7D] text-white border-[#E66C7D]"
+                              : "bg-white text-[#2B2B2B] border-gray-200 hover:border-[#E66C7D]"
+                          }`}
+                        >
+                          {formatTime12h(slot.time)}
+                        </button>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -1342,11 +1278,11 @@ export default function NailsPinkPalaceAdminPage() {
               {/* Notes */}
               <div>
                 <label className="block font-semibold text-[#2B2B2B] mb-1">
-                  Notas / Motivo de reagendación
+                  Notas / Motivo de Reagendación
                 </label>
-                <input
-                  type="text"
-                  placeholder="Ej: Cambio solicitado por clienta vía WhatsApp"
+                <textarea
+                  rows={2}
+                  placeholder="Ej: Clienta solicitó mover la cita para la tarde..."
                   value={rescheduleNotes}
                   onChange={(e) => setRescheduleNotes(e.target.value)}
                   className="w-full p-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#E66C7D]"
@@ -1354,40 +1290,49 @@ export default function NailsPinkPalaceAdminPage() {
               </div>
 
               {/* Actions */}
-              <div className="pt-3 flex justify-end gap-3 border-t border-gray-100">
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
                 <button
                   type="button"
-                  onClick={() => setRescheduleTarget(null)}
-                  className="px-4 py-2 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-50"
+                  onClick={() => sendWhatsAppRescheduleConfirmation(rescheduleTarget)}
+                  className="w-full sm:w-auto px-4 py-2 rounded-xl bg-green-50 text-green-700 hover:bg-green-100 transition-colors border border-green-200 font-semibold flex items-center justify-center gap-1.5"
                 >
-                  Cancelar
+                  <span>💬</span>
+                  <span>Notificar por WhatsApp</span>
                 </button>
-                <button
-                  type="submit"
-                  disabled={!rescheduleDate || !rescheduleTime}
-                  className="px-5 py-2 rounded-xl bg-[#E66C7D] text-white font-semibold hover:bg-[#d45668] disabled:opacity-50 transition-all shadow-sm"
-                >
-                  Guardar Reagendación
-                </button>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setRescheduleTarget(null)}
+                    className="px-4 py-2 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-50"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={!rescheduleDate || !rescheduleTime}
+                    className="px-5 py-2 rounded-xl bg-[#E66C7D] text-white font-semibold hover:bg-[#d45668] disabled:opacity-50 transition-all shadow-sm"
+                  >
+                    Guardar Reagendación
+                  </button>
+                </div>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* =================================================================== */}
-      {/* MODAL: EDITAR / CREAR SERVICIO                                      */}
-      {/* =================================================================== */}
+      {/* MODAL: EDITAR / CREAR SERVICIO */}
       {isServiceModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
-          <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-[#2B2B2B]/10 overflow-hidden my-8">
+          <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-[#2B2B2B]/10 overflow-hidden my-8">
             <div className="px-6 py-5 bg-[#2B2B2B] text-white flex items-center justify-between">
               <div>
                 <p className="font-playfair text-xl text-[#E66C7D] font-bold">
-                  {editingServiceId ? "Editar Servicio" : "Agregar Nuevo Servicio"}
+                  {editingServiceId ? "Editar Servicio" : "Nuevo Servicio en Catálogo"}
                 </p>
                 <p className="text-[11px] text-white/60">
-                  Los cambios se reflejarán de inmediato en el catálogo y reservas del sitio público.
+                  Los cambios se reflejarán inmediatamente en la página web y en el sistema de reservas
                 </p>
               </div>
               <button
@@ -1400,165 +1345,93 @@ export default function NailsPinkPalaceAdminPage() {
             </div>
 
             <form onSubmit={handleSaveService} className="p-6 space-y-4 text-xs max-h-[80vh] overflow-y-auto">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-semibold text-[#2B2B2B] mb-1">
-                    Nombre del Servicio *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Ej: Rubber Base Glow"
-                    value={serviceName}
-                    onChange={(e) => setServiceName(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#E66C7D]"
-                  />
-                </div>
+              {/* Service Name */}
+              <div>
+                <label className="block font-semibold text-[#2B2B2B] mb-1">
+                  Nombre del Servicio *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ej: Rubber Base Premium"
+                  value={serviceFormName}
+                  onChange={(e) => setServiceFormName(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#E66C7D]"
+                />
+              </div>
 
+              {/* Category & Popular */}
+              <div className="grid grid-cols-2 gap-3 items-center">
                 <div>
                   <label className="block font-semibold text-[#2B2B2B] mb-1">
                     Categoría *
                   </label>
                   <select
-                    value={serviceCategory}
+                    value={serviceFormCategory}
                     onChange={(e) =>
-                      setServiceCategory(
-                        e.target.value as "manicura" | "pedicura" | "cuidado"
-                      )
+                      setServiceFormCategory(e.target.value as "manicura" | "pedicura" | "cuidado")
                     }
                     className="w-full p-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-[#E66C7D]"
                   >
                     <option value="manicura">Manicura</option>
                     <option value="pedicura">Pedicura</option>
-                    <option value="cuidado">Cuidado / Spa</option>
+                    <option value="cuidado">Cuidado</option>
                   </select>
+                </div>
+
+                <div className="pt-5">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={serviceFormPopular}
+                      onChange={(e) => setServiceFormPopular(e.target.checked)}
+                      className="h-4 w-4 accent-[#E66C7D] rounded"
+                    />
+                    <span className="font-semibold text-[#2B2B2B]">
+                      ⭐ Destacar como Favorito
+                    </span>
+                  </label>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              {/* Duration & Price */}
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-semibold text-[#2B2B2B] mb-1">
                     Duración (minutos) *
                   </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      required
-                      min={15}
-                      step={15}
-                      value={serviceDurationMin}
-                      onChange={(e) => setServiceDurationMin(Number(e.target.value))}
-                      className="w-full p-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#E66C7D]"
-                    />
-                    <span className="text-gray-500 whitespace-nowrap">min</span>
-                  </div>
-                  <div className="flex gap-1 mt-1.5 flex-wrap">
-                    {[60, 90, 120, 180].map((m) => (
-                      <button
-                        key={m}
-                        type="button"
-                        onClick={() => setServiceDurationMin(m)}
-                        className={`px-2 py-0.5 rounded text-[10px] border ${
-                          serviceDurationMin === m
-                            ? "bg-[#2B2B2B] text-white"
-                            : "bg-gray-50 text-gray-600"
-                        }`}
-                      >
-                        {m}m
-                      </button>
-                    ))}
-                  </div>
+                  <input
+                    type="number"
+                    required
+                    min={15}
+                    step={15}
+                    placeholder="90"
+                    value={serviceFormDuration}
+                    onChange={(e) => setServiceFormDuration(Number(e.target.value))}
+                    className="w-full p-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#E66C7D]"
+                  />
+                  <span className="text-[10px] text-gray-400 mt-0.5 block">
+                    Ej: 60, 90, 120, 180 min
+                  </span>
                 </div>
 
                 <div>
                   <label className="block font-semibold text-[#2B2B2B] mb-1">
-                    Precio en Colones (CRC) *
+                    Precio en Colones (₡) *
                   </label>
-                  <div className="flex items-center gap-2">
-                    <span className="text-gray-500 font-bold">₡</span>
-                    <input
-                      type="number"
-                      required
-                      min={1000}
-                      step={500}
-                      value={servicePriceCRC}
-                      onChange={(e) => setServicePriceCRC(Number(e.target.value))}
-                      className="w-full p-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#E66C7D]"
-                    />
-                  </div>
-                  <div className="flex gap-1 mt-1.5 flex-wrap">
-                    {[8000, 10000, 12000, 15000, 18000, 20000].map((p) => (
-                      <button
-                        key={p}
-                        type="button"
-                        onClick={() => setServicePriceCRC(p)}
-                        className={`px-2 py-0.5 rounded text-[10px] border ${
-                          servicePriceCRC === p
-                            ? "bg-[#2B2B2B] text-white"
-                            : "bg-gray-50 text-gray-600"
-                        }`}
-                      >
-                        ₡{p / 1000}k
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Photo / Image URL with Preview */}
-              <div className="space-y-2">
-                <label className="block font-semibold text-[#2B2B2B]">
-                  Foto del Servicio (URL de imagen) *
-                </label>
-                <div className="flex gap-4 items-start">
-                  <div className="w-28 h-20 rounded-xl overflow-hidden bg-gray-100 border border-gray-200 shrink-0">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={serviceImage}
-                      alt="Vista previa"
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          PHOTO_PRESETS[0].url;
-                      }}
-                    />
-                  </div>
-                  <div className="flex-1 space-y-1.5">
-                    <input
-                      type="url"
-                      required
-                      placeholder="https://images.unsplash.com/..."
-                      value={serviceImage}
-                      onChange={(e) => setServiceImage(e.target.value)}
-                      className="w-full p-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#E66C7D] text-xs"
-                    />
-                    <p className="text-[10px] text-gray-500">
-                      Pega cualquier URL de imagen o selecciona una foto de nuestra galería predeterminada:
-                    </p>
-                  </div>
-                </div>
-
-                {/* Preset Photo Selectors */}
-                <div className="p-2.5 bg-[#FAF6F1] rounded-xl space-y-1.5 border border-[#2B2B2B]/10">
-                  <span className="text-[10px] uppercase font-bold text-gray-500 tracking-wider">
-                    Fotos de Uñas Rápidas:
+                  <input
+                    type="number"
+                    required
+                    min={1000}
+                    step={500}
+                    placeholder="10000"
+                    value={serviceFormPrice}
+                    onChange={(e) => setServiceFormPrice(Number(e.target.value))}
+                    className="w-full p-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#E66C7D]"
+                  />
+                  <span className="text-[10px] text-gray-400 mt-0.5 block">
+                    Se mostrará como {formatCRC(serviceFormPrice || 0)}
                   </span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {PHOTO_PRESETS.map((preset) => (
-                      <button
-                        key={preset.name}
-                        type="button"
-                        onClick={() => setServiceImage(preset.url)}
-                        className={`px-2.5 py-1 rounded-lg text-[10px] font-medium border transition-colors ${
-                          serviceImage === preset.url
-                            ? "bg-[#E66C7D] text-white border-[#E66C7D]"
-                            : "bg-white text-gray-700 border-gray-200 hover:border-gray-400"
-                        }`}
-                      >
-                        {preset.name}
-                      </button>
-                    ))}
-                  </div>
                 </div>
               </div>
 
@@ -1568,34 +1441,85 @@ export default function NailsPinkPalaceAdminPage() {
                   Descripción del Servicio *
                 </label>
                 <textarea
-                  rows={3}
+                  rows={2}
                   required
-                  placeholder="Detalles sobre beneficios, acabado y técnicas empleadas..."
-                  value={serviceDescription}
-                  onChange={(e) => setServiceDescription(e.target.value)}
+                  placeholder="Explica los beneficios, acabado y técnicas utilizadas..."
+                  value={serviceFormDescription}
+                  onChange={(e) => setServiceFormDescription(e.target.value)}
                   className="w-full p-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#E66C7D]"
                 />
               </div>
 
-              {/* Popular Checkbox */}
-              <div className="flex items-center gap-2 pt-1">
-                <input
-                  type="checkbox"
-                  id="popularCheck"
-                  checked={servicePopular}
-                  onChange={(e) => setServicePopular(e.target.checked)}
-                  className="h-4 w-4 accent-[#E66C7D] rounded cursor-pointer"
-                />
-                <label
-                  htmlFor="popularCheck"
-                  className="font-medium text-[#2B2B2B] cursor-pointer"
-                >
-                  Marcar como servicio &quot;⭐ Favorito / Destacado&quot; en la página principal
+              {/* Image URL & Preset Selection */}
+              <div className="space-y-2">
+                <label className="block font-semibold text-[#2B2B2B]">
+                  Foto del Servicio *
                 </label>
+                <input
+                  type="url"
+                  required
+                  placeholder="https://..."
+                  value={serviceFormImage}
+                  onChange={(e) => setServiceFormImage(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#E66C7D]"
+                />
+
+                {/* Live Preview */}
+                {serviceFormImage && (
+                  <div className="flex items-center gap-3 p-2.5 bg-[#FAF6F1] rounded-2xl border border-gray-200">
+                    <div className="relative h-16 w-24 rounded-xl overflow-hidden bg-gray-200 shrink-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={serviceFormImage}
+                        alt="Vista previa"
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <p className="font-bold text-[#2B2B2B] text-xs">
+                        Vista previa de la fotografía
+                      </p>
+                      <p className="text-[10px] text-gray-500">
+                        Asegúrate de que la imagen sea nítida y muestre el trabajo de uñas
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Presets Gallery */}
+                <div>
+                  <span className="text-[11px] font-semibold text-[#2B2B2B]/70 block mb-1">
+                    O selecciona una foto de nuestra galería predeterminada:
+                  </span>
+                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 max-h-32 overflow-y-auto p-1">
+                    {IMAGE_PRESETS.map((preset) => (
+                      <button
+                        key={preset.name}
+                        type="button"
+                        onClick={() => setServiceFormImage(preset.url)}
+                        className={`relative aspect-[4/3] rounded-xl overflow-hidden border-2 transition-all ${
+                          serviceFormImage === preset.url
+                            ? "border-[#E66C7D] ring-2 ring-[#E66C7D]/30"
+                            : "border-transparent opacity-75 hover:opacity-100"
+                        }`}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={preset.url}
+                          alt={preset.name}
+                          className="w-full h-full object-cover"
+                        />
+                        <span className="absolute inset-x-0 bottom-0 bg-black/60 text-white text-[9px] py-0.5 text-center truncate px-1">
+                          {preset.name}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
 
-              {/* Modal Actions */}
-              <div className="pt-4 flex justify-end gap-3 border-t border-gray-100">
+              {/* Actions */}
+              <div className="pt-3 flex justify-end gap-3 border-t border-gray-100">
                 <button
                   type="button"
                   onClick={() => setIsServiceModalOpen(false)}
@@ -1615,9 +1539,7 @@ export default function NailsPinkPalaceAdminPage() {
         </div>
       )}
 
-      {/* =================================================================== */}
-      {/* MODAL: AGENDAR CITA MANUAL                                          */}
-      {/* =================================================================== */}
+      {/* MODAL: MANUAL APPOINTMENT */}
       {isNewAppointmentOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
           <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-[#2B2B2B]/10 overflow-hidden my-8">
@@ -1639,10 +1561,7 @@ export default function NailsPinkPalaceAdminPage() {
               </button>
             </div>
 
-            <form
-              onSubmit={handleCreateManualAppointment}
-              className="p-6 space-y-4 text-xs"
-            >
+            <form onSubmit={handleCreateManualAppointment} className="p-6 space-y-4 text-xs">
               <div>
                 <label className="block font-semibold text-[#2B2B2B] mb-1">
                   Nombre de la clienta *
@@ -1710,6 +1629,7 @@ export default function NailsPinkPalaceAdminPage() {
                   <input
                     type="date"
                     required
+                    min={todayStr}
                     value={newDate}
                     onChange={(e) => setNewDate(e.target.value)}
                     className="w-full p-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#E66C7D]"
