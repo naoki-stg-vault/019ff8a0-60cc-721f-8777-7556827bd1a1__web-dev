@@ -156,7 +156,7 @@ export const BUSINESS_INFO = {
 };
 
 export function formatCRC(amount: number): string {
-  return "₡" + amount.toLocaleString("es-CR");
+  return "₡" + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
 export function addMinutesToTime(timeStr: string, minutesToAdd: number): string {
