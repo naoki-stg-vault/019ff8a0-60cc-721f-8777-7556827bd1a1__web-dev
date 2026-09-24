@@ -21,6 +21,7 @@ import {
 export default function NailsPinkPalacePage() {
   // State for appointments & settings
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [services, setServices] = useState<NailService[]>(NAIL_SERVICES);
   const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>(DEFAULT_NOTIFICATIONS);
   const [holidays, setHolidays] = useState<string[]>([]);
 
@@ -32,7 +33,9 @@ export default function NailsPinkPalacePage() {
   // Modals & Panels
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-  const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [reschedulingApp, setReschedulingApp] = useState<Appointment | null>(null);
+  const [rescheduleDate, setRescheduleDate] = useState<string>("");
+  const [rescheduleTime, setRescheduleTime] = useState<string>("");
 
   // Wizard state (Step 1 to 5 + Success)
   const [wizardStep, setWizardStep] = useState<number>(1);
@@ -56,10 +59,6 @@ export default function NailsPinkPalacePage() {
   const [enteredOtp, setEnteredOtp] = useState<string>("");
   const [otpError, setOtpError] = useState<string>("");
 
-  // Admin filter
-  const [adminStatusFilter, setAdminStatusFilter] = useState<string>("todas");
-  const [adminSearch, setAdminSearch] = useState<string>("");
-
   // Hydrate from localStorage
   useEffect(() => {
     try {
@@ -69,6 +68,19 @@ export default function NailsPinkPalacePage() {
       } else {
         setAppointments(INITIAL_SAMPLE_APPOINTMENTS);
         localStorage.setItem("npp_appointments", JSON.stringify(INITIAL_SAMPLE_APPOINTMENTS));
+      }
+
+      const storedServices = localStorage.getItem("npp_services");
+      if (storedServices) {
+        try {
+          const parsed = JSON.parse(storedServices);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setServices(parsed);
+            setSelectedService(parsed[0]);
+          }
+        } catch { /* ignore */ }
+      } else {
+        localStorage.setItem("npp_services", JSON.stringify(NAIL_SERVICES));
       }
 
       const storedPhone = localStorage.getItem("npp_client_phone");
@@ -106,6 +118,24 @@ export default function NailsPinkPalacePage() {
     const mm = String(tomorrow.getMonth() + 1).padStart(2, "0");
     const dd = String(tomorrow.getDate()).padStart(2, "0");
     setSelectedDate(`${yyyy}-${mm}-${dd}`);
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "npp_services" && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setServices(parsed);
+          }
+        } catch { /* ignore */ }
+      }
+      if (e.key === "npp_appointments" && e.newValue) {
+        try {
+          setAppointments(JSON.parse(e.newValue));
+        } catch { /* ignore */ }
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   // Sync appointments to localStorage
@@ -113,16 +143,6 @@ export default function NailsPinkPalacePage() {
     setAppointments(newApps);
     try {
       localStorage.setItem("npp_appointments", JSON.stringify(newApps));
-    } catch {
-      /* ignore */
-    }
-  };
-
-  // Sync notifications
-  const saveNotificationSettings = (newSettings: NotificationSettings) => {
-    setNotificationSettings(newSettings);
-    try {
-      localStorage.setItem("npp_notification_settings", JSON.stringify(newSettings));
     } catch {
       /* ignore */
     }
@@ -138,9 +158,9 @@ export default function NailsPinkPalacePage() {
 
   // Filtered services
   const displayedServices = useMemo(() => {
-    if (activeCategory === "todos") return NAIL_SERVICES;
-    return NAIL_SERVICES.filter((s) => s.category === activeCategory);
-  }, [activeCategory]);
+    if (activeCategory === "todos") return services;
+    return services.filter((s) => s.category === activeCategory);
+  }, [services, activeCategory]);
 
   // Compute available slots for currently selected date & service
   const availableSlots = useMemo(() => {
@@ -248,12 +268,38 @@ export default function NailsPinkPalacePage() {
     }
   };
 
-  // Admin: update status
-  const handleAdminStatusChange = (id: string, newStatus: "confirmada" | "completada" | "cancelada") => {
-    const updated = appointments.map((app) =>
-      app.id === id ? { ...app, status: newStatus } : app
+  // Reschedule available slots
+  const rescheduleAvailableSlots = useMemo(() => {
+    if (!reschedulingApp || !rescheduleDate) return [];
+    const srv = services.find((s) => s.id === reschedulingApp.serviceId) || services[0];
+    const otherApps = appointments.filter((a) => a.id !== reschedulingApp.id);
+    return getAvailableSlots(rescheduleDate, srv.durationMin, otherApps, holidays);
+  }, [reschedulingApp, rescheduleDate, services, appointments, holidays]);
+
+  const handleConfirmClientReschedule = () => {
+    if (!reschedulingApp || !rescheduleDate || !rescheduleTime) {
+      alert("Por favor selecciona una fecha y hora disponible.");
+      return;
+    }
+    const srv = services.find((s) => s.id === reschedulingApp.serviceId) || services[0];
+    const endTime = addMinutesToTime(rescheduleTime, srv.durationMin);
+    const updated = appointments.map((a) =>
+      a.id === reschedulingApp.id
+        ? {
+            ...a,
+            date: rescheduleDate,
+            time: rescheduleTime,
+            endTime,
+            status: "confirmada" as const,
+            notes: a.notes
+              ? `${a.notes} (Reagendada para el ${rescheduleDate} a las ${rescheduleTime})`
+              : `Reagendada para el ${rescheduleDate} a las ${rescheduleTime}`,
+          }
+        : a
     );
     saveAppointments(updated);
+    setReschedulingApp(null);
+    alert(`¡Tu cita ha sido reagendada con éxito para el ${rescheduleDate} a las ${rescheduleTime}!`);
   };
 
   // Min date selector: today
@@ -325,16 +371,6 @@ export default function NailsPinkPalacePage() {
               className="px-6 py-2.5 rounded-full bg-[#E66C7D] text-white text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-[#d45668] transition-all shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
             >
               Reservar Cita
-            </button>
-
-            {/* Admin Toggle */}
-            <button
-              type="button"
-              onClick={() => setIsAdminOpen(true)}
-              title="Panel de Administración para Valentina"
-              className="p-2 text-[#2B2B2B]/40 hover:text-[#2B2B2B] transition-colors rounded-full text-xs"
-            >
-              ⚙
             </button>
           </div>
         </div>
@@ -800,7 +836,7 @@ export default function NailsPinkPalacePage() {
                   </div>
 
                   <div className="space-y-3 max-h-[360px] overflow-y-auto pr-2">
-                    {NAIL_SERVICES.map((srv) => {
+                    {services.map((srv) => {
                       const isSelected = selectedService.id === srv.id;
                       return (
                         <div
@@ -1387,13 +1423,26 @@ export default function NailsPinkPalacePage() {
                             </span>
 
                             {app.status === "confirmada" && (
-                              <button
-                                type="button"
-                                onClick={() => handleCancelAppointment(app.id)}
-                                className="text-red-600 hover:text-red-800 underline text-[11px]"
-                              >
-                                Cancelar cita
-                              </button>
+                              <div className="flex items-center gap-3">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setReschedulingApp(app);
+                                    setRescheduleDate(app.date);
+                                    setRescheduleTime(app.time);
+                                  }}
+                                  className="text-[#E66C7D] hover:underline font-semibold text-[11px]"
+                                >
+                                  Reagendar
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleCancelAppointment(app.id)}
+                                  className="text-red-600 hover:text-red-800 underline text-[11px]"
+                                >
+                                  Cancelar cita
+                                </button>
+                              </div>
                             )}
                           </div>
                         </div>
@@ -1407,231 +1456,102 @@ export default function NailsPinkPalacePage() {
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* 3. ADMIN PANEL FOR VALENTINA                                              */}
-      {/* ========================================================================= */}
-      {isAdminOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
-          <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-[#2B2B2B]/10 overflow-hidden my-8">
-            <div className="px-8 py-6 bg-[#2B2B2B] text-white flex items-center justify-between">
+      {/* Client Rescheduling Modal */}
+      {reschedulingApp && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm overflow-y-auto">
+          <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-[#2B2B2B]/10 overflow-hidden p-6 space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
               <div>
-                <p className="font-playfair italic text-2xl text-[#E66C7D]">Nails Pink Palace</p>
-                <p className="font-inter text-xs uppercase tracking-[0.2em] text-white/60">
-                  Panel de Gestión para Valentina Cobaleda Pallares
+                <h3 className="font-playfair text-xl font-bold text-[#2B2B2B]">
+                  Reagendar Cita
+                </h3>
+                <p className="text-xs text-[#2B2B2B]/60 mt-0.5">
+                  {reschedulingApp.serviceName}
                 </p>
               </div>
-
               <button
                 type="button"
-                onClick={() => setIsAdminOpen(false)}
-                className="h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white text-lg"
+                onClick={() => setReschedulingApp(null)}
+                className="h-8 w-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 text-sm"
               >
                 ✕
               </button>
             </div>
 
-            <div className="p-8 space-y-8 max-h-[80vh] overflow-y-auto">
-              {/* Metrics */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="p-5 rounded-2xl bg-[#FAF6F1] border border-[#2B2B2B]/10">
-                  <p className="font-inter text-xs uppercase tracking-wider text-[#2B2B2B]/60">Total Citas</p>
-                  <p className="font-playfair text-3xl font-bold text-[#2B2B2B] mt-1">{appointments.length}</p>
-                </div>
+            <div className="p-3 bg-[#FAF6F1] rounded-xl text-xs space-y-1">
+              <p className="text-gray-500">Horario actual:</p>
+              <p className="font-bold text-[#2B2B2B]">
+                📅 {reschedulingApp.date} · {formatTime12h(reschedulingApp.time)} – {formatTime12h(reschedulingApp.endTime)}
+              </p>
+            </div>
 
-                <div className="p-5 rounded-2xl bg-[#FAF6F1] border border-[#2B2B2B]/10">
-                  <p className="font-inter text-xs uppercase tracking-wider text-[#2B2B2B]/60">Confirmadas</p>
-                  <p className="font-playfair text-3xl font-bold text-[#E66C7D] mt-1">
-                    {appointments.filter((a) => a.status === "confirmada").length}
-                  </p>
-                </div>
-
-                <div className="p-5 rounded-2xl bg-[#FAF6F1] border border-[#2B2B2B]/10">
-                  <p className="font-inter text-xs uppercase tracking-wider text-[#2B2B2B]/60">Ingresos Est.</p>
-                  <p className="font-playfair text-2xl font-bold text-[#2B2B2B] mt-1">
-                    {formatCRC(
-                      appointments
-                        .filter((a) => a.status !== "cancelada")
-                        .reduce((sum, a) => sum + a.priceCRC, 0)
-                    )}
-                  </p>
-                </div>
-
-                <div className="p-5 rounded-2xl bg-[#FAF6F1] border border-[#2B2B2B]/10">
-                  <p className="font-inter text-xs uppercase tracking-wider text-[#2B2B2B]/60">Clientas</p>
-                  <p className="font-playfair text-3xl font-bold text-[#2B2B2B] mt-1">
-                    {new Set(appointments.map((a) => a.clientPhone)).size}
-                  </p>
-                </div>
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="block font-semibold text-[#2B2B2B] mb-1">
+                  Nueva Fecha *
+                </label>
+                <input
+                  type="date"
+                  min={todayStr}
+                  value={rescheduleDate}
+                  onChange={(e) => {
+                    setRescheduleDate(e.target.value);
+                    setRescheduleTime("");
+                  }}
+                  className="w-full p-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#E66C7D]"
+                />
               </div>
 
-              {/* Notification Integrations Configuration */}
-              <div className="p-6 rounded-2xl bg-[#FAF6F1] border border-[#2B2B2B]/10 space-y-4">
-                <h4 className="font-inter text-sm uppercase tracking-wider font-bold text-[#2B2B2B]">
-                  Configuración de Notificaciones Automáticas
-                </h4>
-                <div className="grid sm:grid-cols-3 gap-4">
-                  <label className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-200 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={notificationSettings.whatsapp}
-                      onChange={(e) =>
-                        saveNotificationSettings({
-                          ...notificationSettings,
-                          whatsapp: e.target.checked,
-                        })
-                      }
-                      className="h-4 w-4 accent-[#E66C7D]"
-                    />
-                    <div className="text-xs">
-                      <strong className="block text-[#2B2B2B]">WhatsApp Business API</strong>
-                      <span className="text-[#2B2B2B]/60">A Valentina ({BUSINESS_INFO.phone}) y clienta</span>
-                    </div>
+              {rescheduleDate && (
+                <div>
+                  <label className="block font-semibold text-[#2B2B2B] mb-1">
+                    Nueva Hora Disponible *
                   </label>
-
-                  <label className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-200 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={notificationSettings.calendar}
-                      onChange={(e) =>
-                        saveNotificationSettings({
-                          ...notificationSettings,
-                          calendar: e.target.checked,
-                        })
-                      }
-                      className="h-4 w-4 accent-[#E66C7D]"
-                    />
-                    <div className="text-xs">
-                      <strong className="block text-[#2B2B2B]">Google Calendar</strong>
-                      <span className="text-[#2B2B2B]/60">{BUSINESS_INFO.email}</span>
+                  {rescheduleAvailableSlots.length === 0 ? (
+                    <p className="text-xs text-red-500 italic p-2 bg-red-50 rounded-lg">
+                      No hay horarios disponibles para esta fecha (domingos cerrado o sin cupos). Elige otra fecha.
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto p-1">
+                      {rescheduleAvailableSlots.map((slot) => (
+                        <button
+                          key={slot.time}
+                          type="button"
+                          disabled={!slot.available}
+                          onClick={() => setRescheduleTime(slot.time)}
+                          className={`p-2 rounded-xl text-xs font-semibold text-center border transition-all ${
+                            !slot.available
+                              ? "opacity-40 bg-gray-100 border-gray-200 cursor-not-allowed text-gray-400"
+                              : rescheduleTime === slot.time
+                              ? "bg-[#E66C7D] text-white border-[#E66C7D]"
+                              : "bg-white text-[#2B2B2B] border-gray-200 hover:border-[#E66C7D]"
+                          }`}
+                        >
+                          {formatTime12h(slot.time)}
+                        </button>
+                      ))}
                     </div>
-                  </label>
-
-                  <label className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-200 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={notificationSettings.email}
-                      onChange={(e) =>
-                        saveNotificationSettings({
-                          ...notificationSettings,
-                          email: e.target.checked,
-                        })
-                      }
-                      className="h-4 w-4 accent-[#E66C7D]"
-                    />
-                    <div className="text-xs">
-                      <strong className="block text-[#2B2B2B]">Correo Electrónico</strong>
-                      <span className="text-[#2B2B2B]/60">Confirmación y recordatorio</span>
-                    </div>
-                  </label>
+                  )}
                 </div>
-              </div>
+              )}
+            </div>
 
-              {/* Appointments Manager Table */}
-              <div className="space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <h4 className="font-inter text-sm uppercase tracking-wider font-bold text-[#2B2B2B]">
-                    Gestión de Citas
-                  </h4>
-
-                  <div className="flex items-center gap-2">
-                    <select
-                      value={adminStatusFilter}
-                      onChange={(e) => setAdminStatusFilter(e.target.value)}
-                      className="p-2 rounded-lg border border-gray-200 text-xs"
-                    >
-                      <option value="todas">Todas las citas</option>
-                      <option value="confirmada">Confirmadas</option>
-                      <option value="completada">Completadas</option>
-                      <option value="cancelada">Canceladas</option>
-                    </select>
-
-                    <input
-                      type="text"
-                      placeholder="Buscar por clienta o tel..."
-                      value={adminSearch}
-                      onChange={(e) => setAdminSearch(e.target.value)}
-                      className="p-2 rounded-lg border border-gray-200 text-xs w-48"
-                    />
-                  </div>
-                </div>
-
-                <div className="border border-gray-200 rounded-2xl overflow-hidden">
-                  <table className="w-full text-left text-xs">
-                    <thead className="bg-[#FAF6F1] border-b border-gray-200 text-[#2B2B2B]/60 uppercase tracking-wider">
-                      <tr>
-                        <th className="p-3">Clienta</th>
-                        <th className="p-3">Servicio</th>
-                        <th className="p-3">Fecha & Hora</th>
-                        <th className="p-3">Monto & Pago</th>
-                        <th className="p-3">Estado</th>
-                        <th className="p-3 text-right">Acción</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {appointments
-                        .filter((app) => {
-                          if (adminStatusFilter !== "todas" && app.status !== adminStatusFilter) return false;
-                          if (
-                            adminSearch &&
-                            !app.clientName.toLowerCase().includes(adminSearch.toLowerCase()) &&
-                            !app.clientPhone.includes(adminSearch)
-                          ) {
-                            return false;
-                          }
-                          return true;
-                        })
-                        .map((app) => (
-                          <tr key={app.id} className="hover:bg-gray-50">
-                            <td className="p-3 font-medium text-[#2B2B2B]">
-                              <div>{app.clientName}</div>
-                              <div className="text-[10px] text-gray-500">{app.clientPhone}</div>
-                            </td>
-                            <td className="p-3">{app.serviceName}</td>
-                            <td className="p-3">
-                              <div>{app.date}</div>
-                              <div className="text-[10px] text-gray-500">
-                                {formatTime12h(app.time)} – {formatTime12h(app.endTime)}
-                              </div>
-                            </td>
-                            <td className="p-3">
-                              <span className="font-bold text-[#E66C7D]">{formatCRC(app.priceCRC)}</span>
-                              <div className="text-[10px] uppercase text-gray-500">{app.paymentMethod}</div>
-                            </td>
-                            <td className="p-3">
-                              <span
-                                className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                                  app.status === "confirmada"
-                                    ? "bg-green-100 text-green-800"
-                                    : app.status === "completada"
-                                    ? "bg-blue-100 text-blue-800"
-                                    : "bg-red-100 text-red-800"
-                                }`}
-                              >
-                                {app.status}
-                              </span>
-                            </td>
-                            <td className="p-3 text-right">
-                              <select
-                                value={app.status}
-                                onChange={(e) =>
-                                  handleAdminStatusChange(
-                                    app.id,
-                                    e.target.value as "confirmada" | "completada" | "cancelada"
-                                  )
-                                }
-                                className="p-1.5 rounded border border-gray-200 text-xs bg-white"
-                              >
-                                <option value="confirmada">Confirmada</option>
-                                <option value="completada">Completada</option>
-                                <option value="cancelada">Cancelada</option>
-                              </select>
-                            </td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+            <div className="pt-2 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setReschedulingApp(null)}
+                className="px-4 py-2 rounded-xl border border-gray-300 text-gray-600 text-xs hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                disabled={!rescheduleDate || !rescheduleTime}
+                onClick={handleConfirmClientReschedule}
+                className="px-5 py-2 rounded-xl bg-[#E66C7D] text-white text-xs font-semibold hover:bg-[#d45668] disabled:opacity-50 transition-all"
+              >
+                Confirmar Reagendación
+              </button>
             </div>
           </div>
         </div>
