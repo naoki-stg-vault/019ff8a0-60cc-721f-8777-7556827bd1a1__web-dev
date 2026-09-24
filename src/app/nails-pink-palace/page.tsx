@@ -17,6 +17,20 @@ import {
   createWhatsAppMessageUrl,
   INITIAL_SAMPLE_APPOINTMENTS,
 } from "@/lib/nails-data";
+import {
+  Clock,
+  Zap,
+  CreditCard,
+  Smartphone,
+  MapPin,
+  MessageCircle,
+  Calendar,
+  Check,
+  X,
+  ArrowRight,
+  ArrowUpRight,
+  Star,
+} from "lucide-react";
 
 export default function NailsPinkPalacePage() {
   // State for appointments & settings
@@ -577,15 +591,19 @@ export default function NailsPinkPalacePage() {
                       {formatCRC(service.priceCRC)}
                     </div>
                     {service.popular && (
-                      <div className="absolute top-4 left-4 bg-[#E66C7D] text-white px-3 py-1 rounded-full font-inter text-[10px] uppercase tracking-[0.2em] font-semibold">
-                        Favorito
+                      <div className="absolute top-4 left-4 bg-[#E66C7D] text-white px-3 py-1 rounded-full font-inter text-[10px] uppercase tracking-[0.2em] font-semibold flex items-center gap-1">
+                        <Star className="w-3 h-3 fill-current" />
+                        <span>Favorito</span>
                       </div>
                     )}
                   </div>
 
                   <div className="p-6 md:p-8">
                     <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-[#2B2B2B]/60 mb-2">
-                      <span>⏱ {service.durationMin} min</span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-[#2B2B2B]/60" />
+                        <span>{service.durationMin} min</span>
+                      </span>
                       <span>•</span>
                       <span className="capitalize">{service.category}</span>
                     </div>
@@ -607,7 +625,7 @@ export default function NailsPinkPalacePage() {
                     className="w-full py-3.5 rounded-full bg-[#FAF6F1] text-[#2B2B2B] group-hover:bg-[#E66C7D] group-hover:text-white font-inter text-xs uppercase tracking-[0.2em] font-semibold transition-all flex items-center justify-center gap-2"
                   >
                     <span>Reservar Este Servicio</span>
-                    <span>→</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
@@ -620,8 +638,8 @@ export default function NailsPinkPalacePage() {
       <section className="py-16 bg-[#FAF6F1] border-y border-[#2B2B2B]/10">
         <div className="mx-auto max-w-7xl px-6 md:px-12 grid md:grid-cols-3 gap-8">
           <div className="flex items-start gap-4">
-            <div className="h-10 w-10 rounded-full bg-[#E66C7D]/10 text-[#E66C7D] flex items-center justify-center font-bold text-lg shrink-0">
-              ⚡
+            <div className="h-10 w-10 rounded-full bg-[#E66C7D]/10 text-[#E66C7D] flex items-center justify-center shrink-0">
+              <Zap className="w-5 h-5 text-[#E66C7D]" />
             </div>
             <div>
               <h4 className="font-inter text-sm uppercase tracking-wider font-bold text-[#2B2B2B] mb-1">
@@ -634,8 +652,8 @@ export default function NailsPinkPalacePage() {
           </div>
 
           <div className="flex items-start gap-4">
-            <div className="h-10 w-10 rounded-full bg-[#E66C7D]/10 text-[#E66C7D] flex items-center justify-center font-bold text-lg shrink-0">
-              💳
+            <div className="h-10 w-10 rounded-full bg-[#E66C7D]/10 text-[#E66C7D] flex items-center justify-center shrink-0">
+              <CreditCard className="w-5 h-5 text-[#E66C7D]" />
             </div>
             <div>
               <h4 className="font-inter text-sm uppercase tracking-wider font-bold text-[#2B2B2B] mb-1">
@@ -648,8 +666,8 @@ export default function NailsPinkPalacePage() {
           </div>
 
           <div className="flex items-start gap-4">
-            <div className="h-10 w-10 rounded-full bg-[#E66C7D]/10 text-[#E66C7D] flex items-center justify-center font-bold text-lg shrink-0">
-              📱
+            <div className="h-10 w-10 rounded-full bg-[#E66C7D]/10 text-[#E66C7D] flex items-center justify-center shrink-0">
+              <Smartphone className="w-5 h-5 text-[#E66C7D]" />
             </div>
             <div>
               <h4 className="font-inter text-sm uppercase tracking-wider font-bold text-[#2B2B2B] mb-1">
@@ -679,15 +697,20 @@ export default function NailsPinkPalacePage() {
 
             <div className="space-y-4 pt-4 border-t border-[#2B2B2B]/10">
               <div className="flex items-center gap-3">
-                <span className="text-[#E66C7D] text-lg">📍</span>
+                <div className="h-10 w-10 rounded-xl bg-[#E66C7D]/10 flex items-center justify-center shrink-0">
+                  <MapPin className="w-5 h-5 text-[#E66C7D]" />
+                </div>
                 <div>
-                  <p className="font-inter text-xs uppercase tracking-wider font-bold text-[#2B2B2B]">Ubicación</p>
-                  <p className="font-inter text-sm text-[#2B2B2B]/70">Costa Rica</p>
+                  <p className="font-inter text-xs uppercase tracking-wider font-bold text-[#2B2B2B]">Ficha en Google Maps</p>
+                  <p className="font-inter text-sm text-[#2B2B2B] font-medium">Nails Pink Palace</p>
+                  <p className="font-inter text-xs text-[#2B2B2B]/60">Costa Rica · Atención con Cita Previa</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <span className="text-[#E66C7D] text-lg">🕒</span>
+                <div className="h-10 w-10 rounded-xl bg-[#E66C7D]/10 flex items-center justify-center shrink-0">
+                  <Clock className="w-5 h-5 text-[#E66C7D]" />
+                </div>
                 <div>
                   <p className="font-inter text-xs uppercase tracking-wider font-bold text-[#2B2B2B]">Horario de Atención</p>
                   <p className="font-inter text-sm text-[#2B2B2B]/70">Lunes a Sábado: 8:00 a.m. – 7:00 p.m. · Domingo: Cerrado</p>
@@ -695,7 +718,9 @@ export default function NailsPinkPalacePage() {
               </div>
 
               <div className="flex items-center gap-3">
-                <span className="text-[#E66C7D] text-lg">💬</span>
+                <div className="h-10 w-10 rounded-xl bg-[#E66C7D]/10 flex items-center justify-center shrink-0">
+                  <MessageCircle className="w-5 h-5 text-[#E66C7D]" />
+                </div>
                 <div>
                   <p className="font-inter text-xs uppercase tracking-wider font-bold text-[#2B2B2B]">WhatsApp Directo</p>
                   <p className="font-inter text-sm text-[#2B2B2B]/70">8735-7321 (Valentina Cobaleda)</p>
@@ -703,43 +728,76 @@ export default function NailsPinkPalacePage() {
               </div>
             </div>
 
-            <div className="pt-4">
+            <div className="p-5 bg-[#FAF6F1] rounded-2xl border border-[#2B2B2B]/10 space-y-1.5 text-xs font-inter">
+              <p className="uppercase tracking-wider font-bold text-[#2B2B2B] text-[11px]">
+                Pago por SINPE Móvil
+              </p>
+              <p className="text-[#2B2B2B]">
+                Número: <strong className="font-bold text-[#E66C7D]">8735-7321</strong> (Valentina Cobaleda)
+              </p>
+              <p className="text-[#2B2B2B]/60 text-[11px]">
+                Se cancela al finalizar el servicio en el salón o en efectivo.
+              </p>
+            </div>
+
+            <div className="pt-2 flex flex-wrap items-center gap-3">
               <a
                 href={BUSINESS_INFO.locationUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-[#2B2B2B] text-white font-inter text-xs uppercase tracking-[0.25em] font-semibold hover:bg-[#E66C7D] transition-colors shadow-md"
+                className="inline-flex items-center gap-2.5 px-8 py-4 rounded-full bg-[#2B2B2B] text-white font-inter text-xs uppercase tracking-[0.25em] font-semibold hover:bg-[#E66C7D] transition-colors shadow-md"
               >
+                <MapPin className="w-4 h-4 text-[#E66C7D]" />
                 <span>Abrir en Google Maps</span>
-                <span>↗</span>
+                <ArrowUpRight className="w-4 h-4" />
               </a>
             </div>
           </div>
 
-          <div className="md:col-span-7">
-            <div className="bg-[#FAF6F1] p-8 md:p-12 rounded-3xl border border-[#2B2B2B]/10 relative overflow-hidden">
-              <div className="relative z-10 space-y-6">
-                <div className="flex items-center justify-between">
-                  <span className="font-playfair italic text-2xl text-[#E66C7D]">Nails Pink Palace</span>
-                  <span className="px-3 py-1 bg-green-100 text-green-800 text-[10px] uppercase font-bold tracking-wider rounded-full">
-                    Abierto Lun–Sáb
+          <div className="md:col-span-7 space-y-4">
+            <div className="relative w-full h-[450px] md:h-[480px] rounded-3xl overflow-hidden border border-[#2B2B2B]/10 shadow-lg bg-gray-100">
+              <iframe
+                src={BUSINESS_INFO.mapEmbedUrl}
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="strict-origin-when-cross-origin"
+                title="Nails Pink Palace en Google Maps"
+                className="w-full h-full"
+              />
+            </div>
+
+            <div className="bg-[#FAF6F1] p-6 rounded-3xl border border-[#2B2B2B]/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-0.5 bg-green-100 text-green-800 text-[10px] uppercase font-bold tracking-wider rounded-full">
+                    Ficha Oficial en Google Maps
                   </span>
+                  <span className="text-xs text-[#2B2B2B]/70 font-semibold">Nails Pink Palace</span>
                 </div>
-                <p className="font-inter text-sm text-[#2B2B2B]/80 leading-relaxed">
-                  Para tu comodidad y privacidad, atendemos únicamente con cita previa. Al agendar en nuestro sistema, reservamos el tiempo exclusivo para ti.
+                <p className="font-inter text-xs text-[#2B2B2B]/75 leading-relaxed">
+                  Para tu comodidad y privacidad atendemos con reserva previa. Consulta reseñas, fotos y traza tu ruta en Google Maps.
                 </p>
-                <div className="p-5 bg-white rounded-2xl border border-[#2B2B2B]/10 space-y-2">
-                  <p className="font-inter text-xs uppercase tracking-wider font-bold text-[#2B2B2B]">
-                    Información para pago SINPE Móvil
-                  </p>
-                  <p className="font-inter text-sm text-[#2B2B2B]">
-                    Número: <strong className="font-bold text-[#E66C7D]">8735-7321</strong>
-                  </p>
-                  <p className="font-inter text-xs text-[#2B2B2B]/60">
-                    A nombre de: Valentina Cobaleda (se cancela al finalizar el servicio).
-                  </p>
-                </div>
+                <a
+                  href={BUSINESS_INFO.locationUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-mono text-[11px] text-[#E66C7D] hover:underline block truncate max-w-md"
+                >
+                  {BUSINESS_INFO.locationUrl}
+                </a>
               </div>
+              <a
+                href={BUSINESS_INFO.locationUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="px-6 py-3 rounded-full bg-[#E66C7D] text-white font-inter text-xs uppercase tracking-wider font-semibold hover:bg-[#d45668] transition-colors shadow-sm inline-flex items-center gap-2 whitespace-nowrap shrink-0"
+              >
+                <span>Cómo Llegar en Maps</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </a>
             </div>
           </div>
         </div>
@@ -806,10 +864,10 @@ export default function NailsPinkPalacePage() {
               <button
                 type="button"
                 onClick={() => setIsWizardOpen(false)}
-                className="h-10 w-10 rounded-full bg-[#2B2B2B]/5 hover:bg-[#2B2B2B]/10 flex items-center justify-center text-[#2B2B2B] text-lg transition-colors"
+                className="h-10 w-10 rounded-full bg-[#2B2B2B]/5 hover:bg-[#2B2B2B]/10 flex items-center justify-center text-[#2B2B2B] transition-colors"
                 aria-label="Cerrar asistente"
               >
-                ✕
+                <X className="w-5 h-5" />
               </button>
             </div>
 
@@ -858,8 +916,9 @@ export default function NailsPinkPalacePage() {
                             />
                             <div>
                               <p className="font-inter text-sm font-bold text-[#2B2B2B]">{srv.name}</p>
-                              <p className="font-inter text-xs text-[#2B2B2B]/60">
-                                ⏱ {srv.durationMin} min · {srv.category}
+                              <p className="font-inter text-xs text-[#2B2B2B]/60 flex items-center gap-1.5 mt-0.5">
+                                <Clock className="w-3.5 h-3.5 text-[#2B2B2B]/60 shrink-0" />
+                                <span>{srv.durationMin} min · {srv.category}</span>
                               </p>
                             </div>
                           </div>
@@ -1110,8 +1169,9 @@ export default function NailsPinkPalacePage() {
                     <div className="flex items-center justify-between pb-4 border-b border-[#2B2B2B]/10">
                       <div>
                         <p className="font-playfair text-xl font-bold text-[#2B2B2B]">{selectedService.name}</p>
-                        <p className="font-inter text-xs text-[#2B2B2B]/60">
-                          ⏱ Duración estimada: {selectedService.durationMin} minutos
+                        <p className="font-inter text-xs text-[#2B2B2B]/60 flex items-center gap-1.5 mt-1">
+                          <Clock className="w-3.5 h-3.5 text-[#2B2B2B]/60 shrink-0" />
+                          <span>Duración estimada: {selectedService.durationMin} minutos</span>
                         </p>
                       </div>
                       <span className="font-playfair text-2xl font-bold text-[#E66C7D]">
@@ -1160,8 +1220,8 @@ export default function NailsPinkPalacePage() {
               {/* STEP 6: PANTALLA DE ÉXITO */}
               {wizardStep === 6 && confirmedAppointment && (
                 <div className="text-center space-y-6 py-4">
-                  <div className="h-16 w-16 mx-auto rounded-full bg-green-100 text-green-600 flex items-center justify-center text-3xl">
-                    ✓
+                  <div className="h-16 w-16 mx-auto rounded-full bg-green-100 text-green-600 flex items-center justify-center">
+                    <Check className="w-8 h-8" />
                   </div>
 
                   <div>
@@ -1173,28 +1233,32 @@ export default function NailsPinkPalacePage() {
 
                   {/* Notification dispatch badges */}
                   <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
-                    <span className="px-3 py-1 rounded-full bg-green-50 text-green-700 text-[11px] font-semibold border border-green-200">
-                      ✓ WhatsApp Disparado
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-700 text-[11px] font-semibold border border-green-200">
+                      <Check className="w-3.5 h-3.5 text-green-600 shrink-0" />
+                      <span>WhatsApp Disparado</span>
                     </span>
-                    <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-[11px] font-semibold border border-blue-200">
-                      ✓ Google Calendar ({DEFAULT_NOTIFICATIONS.valentinaEmail})
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-[11px] font-semibold border border-blue-200">
+                      <Check className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                      <span>Google Calendar ({DEFAULT_NOTIFICATIONS.valentinaEmail})</span>
                     </span>
                     {confirmedAppointment.clientEmail && (
-                      <span className="px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-[11px] font-semibold border border-purple-200">
-                        ✓ Correo Enviado
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-[11px] font-semibold border border-purple-200">
+                        <Check className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+                        <span>Correo Enviado</span>
                       </span>
                     )}
                   </div>
 
                   {/* Actions */}
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                  <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 pt-4">
                     <a
                       href={createGoogleCalendarUrl(confirmedAppointment)}
                       target="_blank"
                       rel="noreferrer"
-                      className="w-full sm:w-auto px-6 py-3 rounded-full border border-[#2B2B2B]/20 text-[#2B2B2B] font-inter text-xs uppercase tracking-wider font-semibold hover:border-[#2B2B2B] transition-colors"
+                      className="w-full sm:w-auto px-6 py-3 rounded-full border border-[#2B2B2B]/20 text-[#2B2B2B] font-inter text-xs uppercase tracking-wider font-semibold hover:border-[#2B2B2B] transition-colors inline-flex items-center justify-center gap-2"
                     >
-                      📅 Agregar a mi Google Calendar
+                      <Calendar className="w-4 h-4 text-blue-600" />
+                      <span>Agregar a mi Google Calendar</span>
                     </a>
 
                     <a
@@ -1204,9 +1268,20 @@ export default function NailsPinkPalacePage() {
                       )}
                       target="_blank"
                       rel="noreferrer"
-                      className="w-full sm:w-auto px-6 py-3 rounded-full bg-[#E66C7D] text-white font-inter text-xs uppercase tracking-wider font-semibold hover:bg-[#d45668] transition-colors"
+                      className="w-full sm:w-auto px-6 py-3 rounded-full bg-[#E66C7D] text-white font-inter text-xs uppercase tracking-wider font-semibold hover:bg-[#d45668] transition-colors inline-flex items-center justify-center gap-2"
                     >
-                      💬 Escribir a Valentina por WhatsApp
+                      <MessageCircle className="w-4 h-4" />
+                      <span>Escribir a Valentina por WhatsApp</span>
+                    </a>
+
+                    <a
+                      href={BUSINESS_INFO.locationUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-full sm:w-auto px-6 py-3 rounded-full border border-[#E66C7D]/40 text-[#E66C7D] font-inter text-xs uppercase tracking-wider font-semibold hover:bg-[#E66C7D] hover:text-white transition-colors inline-flex items-center justify-center gap-2"
+                    >
+                      <MapPin className="w-4 h-4" />
+                      <span>Ver en Google Maps</span>
                     </a>
                   </div>
 
@@ -1263,9 +1338,10 @@ export default function NailsPinkPalacePage() {
                   <button
                     type="button"
                     onClick={handleConfirmBooking}
-                    className="px-8 py-3 rounded-full bg-[#E66C7D] text-white text-xs uppercase tracking-[0.2em] font-bold hover:bg-[#d45668] transition-all shadow-md"
+                    className="px-8 py-3 rounded-full bg-[#E66C7D] text-white text-xs uppercase tracking-[0.2em] font-bold hover:bg-[#d45668] transition-all shadow-md inline-flex items-center gap-2"
                   >
-                    Confirmar Cita ✓
+                    <span>Confirmar Cita</span>
+                    <Check className="w-4 h-4" />
                   </button>
                 )}
               </div>
@@ -1293,9 +1369,10 @@ export default function NailsPinkPalacePage() {
               <button
                 type="button"
                 onClick={() => setIsHistoryOpen(false)}
-                className="h-10 w-10 rounded-full bg-[#2B2B2B]/5 hover:bg-[#2B2B2B]/10 flex items-center justify-center text-[#2B2B2B] text-lg"
+                className="h-10 w-10 rounded-full bg-[#2B2B2B]/5 hover:bg-[#2B2B2B]/10 flex items-center justify-center text-[#2B2B2B] transition-colors"
+                aria-label="Cerrar modal"
               >
-                ✕
+                <X className="w-5 h-5" />
               </button>
             </div>
 
@@ -1472,16 +1549,18 @@ export default function NailsPinkPalacePage() {
               <button
                 type="button"
                 onClick={() => setReschedulingApp(null)}
-                className="h-8 w-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 text-sm"
+                className="h-8 w-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors"
+                aria-label="Cerrar modal"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="p-3 bg-[#FAF6F1] rounded-xl text-xs space-y-1">
               <p className="text-gray-500">Horario actual:</p>
-              <p className="font-bold text-[#2B2B2B]">
-                📅 {reschedulingApp.date} · {formatTime12h(reschedulingApp.time)} – {formatTime12h(reschedulingApp.endTime)}
+              <p className="font-bold text-[#2B2B2B] flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-[#E66C7D] shrink-0" />
+                <span>{reschedulingApp.date} · {formatTime12h(reschedulingApp.time)} – {formatTime12h(reschedulingApp.endTime)}</span>
               </p>
             </div>
 

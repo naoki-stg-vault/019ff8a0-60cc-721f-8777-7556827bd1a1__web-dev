@@ -19,6 +19,23 @@ import {
   createWhatsAppMessageUrl,
   INITIAL_SAMPLE_APPOINTMENTS,
 } from "@/lib/nails-data";
+import {
+  Search,
+  Phone,
+  Mail,
+  FileText,
+  Clock,
+  Calendar,
+  Smartphone,
+  Banknote,
+  MessageCircle,
+  Trash2,
+  Pencil,
+  Star,
+  X,
+  Plus,
+  ArrowUpRight,
+} from "lucide-react";
 
 const IMAGE_PRESETS = [
   {
@@ -669,8 +686,8 @@ export default function NailsPinkPalaceAdminPage() {
                     onChange={(e) => setAdminSearch(e.target.value)}
                     className="w-full pl-9 pr-3 py-2 rounded-xl border border-gray-200 text-xs focus:outline-none focus:border-[#E66C7D] transition-colors"
                   />
-                  <span className="absolute left-3 top-2.5 text-gray-400 text-xs">
-                    🔍
+                  <span className="absolute left-3 top-2.5 text-gray-400">
+                    <Search className="w-4 h-4" />
                   </span>
                 </div>
 
@@ -678,9 +695,10 @@ export default function NailsPinkPalaceAdminPage() {
                   <button
                     type="button"
                     onClick={() => setAdminSearch("")}
-                    className="text-xs text-gray-400 hover:text-gray-600"
+                    className="text-xs text-gray-400 hover:text-gray-600 p-1"
+                    aria-label="Limpiar búsqueda"
                   >
-                    ✕
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 )}
               </div>
@@ -723,17 +741,20 @@ export default function NailsPinkPalaceAdminPage() {
                             <div className="font-semibold text-[#2B2B2B] text-sm">
                               {app.clientName}
                             </div>
-                            <div className="text-[11px] text-[#2B2B2B]/70 mt-0.5">
-                              📞 {app.clientPhone}
+                            <div className="text-[11px] text-[#2B2B2B]/70 mt-0.5 flex items-center gap-1.5">
+                              <Phone className="w-3 h-3 text-[#2B2B2B]/60 shrink-0" />
+                              <span>{app.clientPhone}</span>
                             </div>
                             {app.clientEmail && (
-                              <div className="text-[10px] text-gray-400 mt-0.5">
-                                ✉ {app.clientEmail}
+                              <div className="text-[10px] text-gray-400 mt-0.5 flex items-center gap-1.5">
+                                <Mail className="w-3 h-3 text-gray-400 shrink-0" />
+                                <span>{app.clientEmail}</span>
                               </div>
                             )}
                             {app.notes && (
-                              <div className="mt-1 text-[11px] text-[#E66C7D] bg-[#E66C7D]/10 px-2 py-0.5 rounded-md inline-block max-w-xs break-words">
-                                📝 {app.notes}
+                              <div className="mt-1 text-[11px] text-[#E66C7D] bg-[#E66C7D]/10 px-2 py-0.5 rounded-md inline-flex items-center gap-1 max-w-xs break-words">
+                                <FileText className="w-3 h-3 shrink-0" />
+                                <span>{app.notes}</span>
                               </div>
                             )}
                           </td>
@@ -743,15 +764,17 @@ export default function NailsPinkPalaceAdminPage() {
                             <div className="font-medium text-[#2B2B2B]">
                               {app.serviceName}
                             </div>
-                            <div className="text-[11px] text-gray-400">
-                              ⏱ {app.durationMin} min
+                            <div className="text-[11px] text-gray-400 flex items-center gap-1 mt-0.5">
+                              <Clock className="w-3 h-3 shrink-0" />
+                              <span>{app.durationMin} min</span>
                             </div>
                           </td>
 
                           {/* Date & Time */}
                           <td className="p-4">
-                            <div className="font-medium text-[#2B2B2B]">
-                              📅 {app.date}
+                            <div className="font-medium text-[#2B2B2B] flex items-center gap-1">
+                              <Calendar className="w-3.5 h-3.5 text-[#2B2B2B]/70 shrink-0" />
+                              <span>{app.date}</span>
                             </div>
                             <div className="text-[11px] text-gray-500 font-semibold mt-0.5">
                               {formatTime12h(app.time)} – {formatTime12h(app.endTime)}
@@ -764,9 +787,17 @@ export default function NailsPinkPalaceAdminPage() {
                               {formatCRC(app.priceCRC)}
                             </div>
                             <div className="text-[10px] uppercase font-bold tracking-wider text-gray-500 mt-0.5">
-                              {app.paymentMethod === "sinpe"
-                                ? "📱 SINPE Móvil"
-                                : "💵 Efectivo"}
+                              {app.paymentMethod === "sinpe" ? (
+                                <span className="inline-flex items-center gap-1">
+                                  <Smartphone className="w-3.5 h-3.5 text-blue-600" />
+                                  <span>SINPE Móvil</span>
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1">
+                                  <Banknote className="w-3.5 h-3.5 text-emerald-600" />
+                                  <span>Efectivo</span>
+                                </span>
+                              )}
                             </div>
                           </td>
 
@@ -802,9 +833,9 @@ export default function NailsPinkPalaceAdminPage() {
                                 type="button"
                                 onClick={() => openRescheduleModal(app)}
                                 title="Reagendar fecha u hora de esta cita"
-                                className="px-2.5 py-1.5 rounded-lg bg-[#E66C7D]/10 text-[#E66C7D] hover:bg-[#E66C7D] hover:text-white transition-all font-semibold flex items-center gap-1 border border-[#E66C7D]/30"
+                                className="px-2.5 py-1.5 rounded-lg bg-[#E66C7D]/10 text-[#E66C7D] hover:bg-[#E66C7D] hover:text-white transition-all font-semibold flex items-center gap-1.5 border border-[#E66C7D]/30"
                               >
-                                <span>🗓️</span>
+                                <Calendar className="w-3.5 h-3.5" />
                                 <span>Reagendar</span>
                               </button>
 
@@ -829,9 +860,9 @@ export default function NailsPinkPalaceAdminPage() {
                                 type="button"
                                 onClick={() => sendWhatsAppReminder(app)}
                                 title="Enviar recordatorio por WhatsApp a la clienta"
-                                className="p-2 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 transition-colors border border-green-200"
+                                className="p-2 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 transition-colors border border-green-200 flex items-center justify-center"
                               >
-                                💬
+                                <MessageCircle className="w-4 h-4" />
                               </button>
 
                               {/* Google Calendar CTA */}
@@ -840,9 +871,9 @@ export default function NailsPinkPalaceAdminPage() {
                                 target="_blank"
                                 rel="noreferrer"
                                 title="Agregar a Google Calendar"
-                                className="p-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors border border-blue-200 inline-block"
+                                className="p-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors border border-blue-200 inline-flex items-center justify-center"
                               >
-                                📅
+                                <Calendar className="w-4 h-4" />
                               </a>
 
                               {/* Delete CTA */}
@@ -850,9 +881,9 @@ export default function NailsPinkPalaceAdminPage() {
                                 type="button"
                                 onClick={() => handleDeleteAppointment(app.id)}
                                 title="Eliminar cita"
-                                className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors border border-red-200"
+                                className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors border border-red-200 flex items-center justify-center"
                               >
-                                🗑
+                                <Trash2 className="w-4 h-4" />
                               </button>
                             </div>
                           </td>
@@ -922,16 +953,17 @@ export default function NailsPinkPalaceAdminPage() {
                     className="w-full pl-9 pr-3 py-2 rounded-xl border border-gray-200 text-xs focus:outline-none focus:border-[#E66C7D] transition-colors"
                   />
                   <span className="absolute left-3 top-2.5 text-gray-400 text-xs">
-                    🔍
+                    <Search className="w-4 h-4" />
                   </span>
                 </div>
 
                 <button
                   type="button"
                   onClick={openNewServiceModal}
-                  className="px-4 py-2 rounded-xl bg-[#E66C7D] text-white text-xs font-semibold hover:bg-[#d45668] transition-all whitespace-nowrap"
+                  className="px-4 py-2 rounded-xl bg-[#E66C7D] text-white text-xs font-semibold hover:bg-[#d45668] transition-all whitespace-nowrap inline-flex items-center gap-1.5"
                 >
-                  + Agregar Servicio
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Agregar Servicio</span>
                 </button>
               </div>
             </div>
@@ -960,8 +992,9 @@ export default function NailsPinkPalaceAdminPage() {
                           {service.category}
                         </span>
                         {service.popular && (
-                          <span className="bg-[#E66C7D] text-white px-2.5 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wider">
-                            Favorito
+                          <span className="bg-[#E66C7D] text-white px-2.5 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wider inline-flex items-center gap-1">
+                            <Star className="w-3 h-3 fill-current" />
+                            <span>Favorito</span>
                           </span>
                         )}
                       </div>
@@ -972,8 +1005,9 @@ export default function NailsPinkPalaceAdminPage() {
                         <h3 className="font-playfair text-lg font-bold text-[#2B2B2B]">
                           {service.name}
                         </h3>
-                        <span className="text-xs text-[#2B2B2B]/70 font-medium">
-                          ⏱ {service.durationMin} min
+                        <span className="text-xs text-[#2B2B2B]/70 font-medium inline-flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-[#2B2B2B]/60 shrink-0" />
+                          <span>{service.durationMin} min</span>
                         </span>
                       </div>
                       <p className="text-xs text-[#2B2B2B]/70 line-clamp-2">
@@ -987,17 +1021,18 @@ export default function NailsPinkPalaceAdminPage() {
                     <button
                       type="button"
                       onClick={() => openEditServiceModal(service)}
-                      className="flex-1 py-2 rounded-xl bg-gray-100 hover:bg-[#E66C7D] hover:text-white transition-colors text-xs font-semibold text-[#2B2B2B]"
+                      className="flex-1 py-2 rounded-xl bg-gray-100 hover:bg-[#E66C7D] hover:text-white transition-colors text-xs font-semibold text-[#2B2B2B] inline-flex items-center justify-center gap-1.5"
                     >
-                      ✏️ Editar Servicio
+                      <Pencil className="w-3.5 h-3.5" />
+                      <span>Editar Servicio</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDeleteService(service.id)}
-                      className="px-3 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-colors text-xs font-semibold border border-red-200"
+                      className="px-3 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-colors text-xs font-semibold border border-red-200 flex items-center justify-center"
                       title="Eliminar servicio"
                     >
-                      🗑
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -1036,7 +1071,9 @@ export default function NailsPinkPalaceAdminPage() {
                 <div className="p-4 rounded-2xl border border-gray-200 bg-[#FAF6F1]/50 flex items-start justify-between gap-4">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-base">💬</span>
+                      <div className="p-1.5 rounded-lg bg-green-100 text-green-700">
+                        <MessageCircle className="w-4 h-4" />
+                      </div>
                       <strong className="text-sm text-[#2B2B2B]">
                         WhatsApp Business API
                       </strong>
@@ -1065,7 +1102,9 @@ export default function NailsPinkPalaceAdminPage() {
                 <div className="p-4 rounded-2xl border border-gray-200 bg-[#FAF6F1]/50 flex items-start justify-between gap-4">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-base">📅</span>
+                      <div className="p-1.5 rounded-lg bg-blue-100 text-blue-700">
+                        <Calendar className="w-4 h-4" />
+                      </div>
                       <strong className="text-sm text-[#2B2B2B]">
                         Google Calendar
                       </strong>
@@ -1094,7 +1133,9 @@ export default function NailsPinkPalaceAdminPage() {
                 <div className="p-4 rounded-2xl border border-gray-200 bg-[#FAF6F1]/50 flex items-start justify-between gap-4">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-base">✉️</span>
+                      <div className="p-1.5 rounded-lg bg-amber-100 text-amber-700">
+                        <Mail className="w-4 h-4" />
+                      </div>
                       <strong className="text-sm text-[#2B2B2B]">
                         Correo Electrónico
                       </strong>
@@ -1163,6 +1204,21 @@ export default function NailsPinkPalaceAdminPage() {
                     Lunes a Sábado, 8:00 AM – 7:00 PM
                   </span>
                 </div>
+
+                <div className="p-4 rounded-xl bg-[#FAF6F1]">
+                  <span className="text-gray-500 block uppercase tracking-wider text-[10px]">
+                    Ubicación Google Maps
+                  </span>
+                  <a
+                    href={BUSINESS_INFO.locationUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-bold text-[#E66C7D] hover:underline text-sm inline-flex items-center gap-1 mt-0.5"
+                  >
+                    <span>Abrir en Google Maps</span>
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -1178,16 +1234,20 @@ export default function NailsPinkPalaceAdminPage() {
                 <p className="font-playfair text-xl text-[#E66C7D] font-bold">
                   Reagendar Cita
                 </p>
-                <p className="text-[11px] text-white/60">
-                  Clienta: {rescheduleTarget.clientName} (📞 {rescheduleTarget.clientPhone})
+                <p className="text-[11px] text-white/60 flex items-center gap-1">
+                  <span>Clienta: {rescheduleTarget.clientName}</span>
+                  <span className="inline-flex items-center gap-0.5 ml-1">
+                    (<Phone className="w-3 h-3 inline text-white/60" /> {rescheduleTarget.clientPhone})
+                  </span>
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setRescheduleTarget(null)}
-                className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
+                className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                aria-label="Cerrar modal"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -1197,8 +1257,9 @@ export default function NailsPinkPalaceAdminPage() {
                 <span className="text-gray-500 font-semibold block uppercase tracking-wider text-[10px]">
                   Horario actual programado:
                 </span>
-                <p className="text-[#2B2B2B] font-bold">
-                  📅 {rescheduleTarget.date} · {formatTime12h(rescheduleTarget.time)} – {formatTime12h(rescheduleTarget.endTime)}
+                <p className="text-[#2B2B2B] font-bold flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-[#E66C7D] shrink-0" />
+                  <span>{rescheduleTarget.date} · {formatTime12h(rescheduleTarget.time)} – {formatTime12h(rescheduleTarget.endTime)}</span>
                 </p>
                 <p className="text-[#2B2B2B]/70">
                   Servicio: <strong>{rescheduleTarget.serviceName}</strong> ({formatCRC(rescheduleTarget.priceCRC)})
@@ -1296,7 +1357,7 @@ export default function NailsPinkPalaceAdminPage() {
                   onClick={() => sendWhatsAppRescheduleConfirmation(rescheduleTarget)}
                   className="w-full sm:w-auto px-4 py-2 rounded-xl bg-green-50 text-green-700 hover:bg-green-100 transition-colors border border-green-200 font-semibold flex items-center justify-center gap-1.5"
                 >
-                  <span>💬</span>
+                  <MessageCircle className="w-4 h-4" />
                   <span>Notificar por WhatsApp</span>
                 </button>
 
@@ -1338,9 +1399,10 @@ export default function NailsPinkPalaceAdminPage() {
               <button
                 type="button"
                 onClick={() => setIsServiceModalOpen(false)}
-                className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
+                className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                aria-label="Cerrar modal"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -1387,8 +1449,9 @@ export default function NailsPinkPalaceAdminPage() {
                       onChange={(e) => setServiceFormPopular(e.target.checked)}
                       className="h-4 w-4 accent-[#E66C7D] rounded"
                     />
-                    <span className="font-semibold text-[#2B2B2B]">
-                      ⭐ Destacar como Favorito
+                    <span className="font-semibold text-[#2B2B2B] inline-flex items-center gap-1.5">
+                      <Star className="w-4 h-4 text-amber-500 fill-amber-400" />
+                      <span>Destacar como Favorito</span>
                     </span>
                   </label>
                 </div>
@@ -1555,9 +1618,10 @@ export default function NailsPinkPalaceAdminPage() {
               <button
                 type="button"
                 onClick={() => setIsNewAppointmentOpen(false)}
-                className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
+                className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                aria-label="Cerrar modal"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
