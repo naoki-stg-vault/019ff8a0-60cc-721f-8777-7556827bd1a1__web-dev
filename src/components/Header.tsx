@@ -73,9 +73,9 @@ export function Header() {
   ));
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-cream/10 bg-ink/75 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6 md:px-14">
-        <a
+    <header className="sticky top-0 z-50 border-b border-cream/10 bg-ink/75 backdrop-blur-md">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6 md:px-8 lg:px-14">
+        <Link
           href="/"
           className="group flex items-center gap-2.5 font-display text-lg tracking-tight"
         >
@@ -84,7 +84,7 @@ export function Header() {
             aria-hidden
           />
           {t.brand}
-        </a>
+        </Link>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-6">

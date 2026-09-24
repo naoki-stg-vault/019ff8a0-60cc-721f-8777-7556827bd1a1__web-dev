@@ -27,6 +27,7 @@ import {
   Calendar,
   Check,
   X,
+  Menu,
   ArrowRight,
   ArrowUpRight,
   Star,
@@ -47,6 +48,7 @@ export default function NailsPinkPalacePage() {
   // Modals & Panels
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
   const [reschedulingApp, setReschedulingApp] = useState<Appointment | null>(null);
   const [rescheduleDate, setRescheduleDate] = useState<string>("");
   const [rescheduleTime, setRescheduleTime] = useState<string>("");
@@ -151,6 +153,21 @@ export default function NailsPinkPalacePage() {
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
+
+  // Close mobile/tablet navigation on Escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsNavMenuOpen(false);
+      }
+    };
+    if (isNavMenuOpen) {
+      document.addEventListener("keydown", handleEscape);
+    }
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isNavMenuOpen]);
 
   // Sync appointments to localStorage
   const saveAppointments = (newApps: Appointment[]) => {
@@ -328,25 +345,29 @@ export default function NailsPinkPalacePage() {
   return (
     <div className="min-h-screen bg-[#FAF6F0] text-[#2B2B2B] font-inter antialiased selection:bg-[#E66C7D] selection:text-white">
       {/* Top Banner Notice */}
-      <div className="bg-[#2B2B2B] text-white text-[11px] uppercase tracking-[0.22em] py-2 px-4 text-center">
+      <div className="bg-[#2B2B2B] text-white text-[10px] sm:text-[11px] uppercase tracking-[0.16em] sm:tracking-[0.22em] py-2 px-4 text-center leading-relaxed">
         Salón de Uñas Profesional · Valentina Cobaleda Pallares · Costa Rica · Horario: Lun–Sáb 8am–7pm
       </div>
 
       {/* Sticky Navigation */}
       <header className="sticky top-0 z-40 bg-[#FAF6F0]/95 backdrop-blur-md border-b border-[#2B2B2B]/10">
-        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 md:px-12">
+        <div className="mx-auto flex h-18 md:h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-12">
           {/* Brand Logo */}
-          <a href="#inicio" className="flex flex-col group">
-            <span className="font-playfair italic text-2xl md:text-3xl tracking-tight text-[#E66C7D] group-hover:opacity-90 transition-opacity">
+          <a
+            href="#inicio"
+            onClick={() => setIsNavMenuOpen(false)}
+            className="flex flex-col group shrink-0"
+          >
+            <span className="font-playfair italic text-xl sm:text-2xl lg:text-3xl tracking-tight text-[#E66C7D] group-hover:opacity-90 transition-opacity">
               Nails Pink Palace
             </span>
-            <span className="font-inter text-[9px] uppercase tracking-[0.3em] text-[#2B2B2B]/60 -mt-1">
+            <span className="font-inter text-[8px] sm:text-[9px] uppercase tracking-[0.22em] sm:tracking-[0.3em] text-[#2B2B2B]/60 -mt-0.5 sm:-mt-1">
               By Valentina Cobaleda
             </span>
           </a>
 
-          {/* Nav links */}
-          <nav className="hidden md:flex items-center gap-8 text-[12px] uppercase tracking-[0.2em] font-medium text-[#2B2B2B]/80">
+          {/* Nav links - Desktop (>= 1024px) */}
+          <nav className="hidden lg:flex items-center gap-6 xl:gap-8 text-[11px] xl:text-[12px] uppercase tracking-[0.16em] xl:tracking-[0.2em] font-medium text-[#2B2B2B]/80 whitespace-nowrap">
             <a href="#inicio" className="hover:text-[#E66C7D] transition-colors">
               Inicio
             </a>
@@ -361,17 +382,20 @@ export default function NailsPinkPalacePage() {
             </a>
           </nav>
 
-          {/* Action CTAs */}
-          <div className="flex items-center gap-3">
+          {/* Action CTAs & Mobile/Tablet Menu Button */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Client History Button */}
             <button
               type="button"
-              onClick={() => setIsHistoryOpen(true)}
-              className="relative px-4 py-2.5 rounded-full border border-[#2B2B2B]/20 text-[11px] uppercase tracking-[0.18em] font-semibold text-[#2B2B2B] hover:border-[#E66C7D] hover:text-[#E66C7D] transition-colors"
+              onClick={() => {
+                setIsNavMenuOpen(false);
+                setIsHistoryOpen(true);
+              }}
+              className="relative px-3 sm:px-4 py-2 sm:py-2.5 rounded-full border border-[#2B2B2B]/20 text-[10px] sm:text-[11px] uppercase tracking-[0.14em] sm:tracking-[0.18em] font-semibold text-[#2B2B2B] hover:border-[#E66C7D] hover:text-[#E66C7D] transition-colors whitespace-nowrap"
             >
               Mis Citas
               {savedPhone && (
-                <span className="absolute -top-1 -right-1 h-3 w-3 bg-[#E66C7D] rounded-full border-2 border-[#FAF6F0]" />
+                <span className="absolute -top-1 -right-1 h-2.5 w-2.5 sm:h-3 sm:w-3 bg-[#E66C7D] rounded-full border-2 border-[#FAF6F0]" />
               )}
             </button>
 
@@ -379,15 +403,83 @@ export default function NailsPinkPalacePage() {
             <button
               type="button"
               onClick={() => {
+                setIsNavMenuOpen(false);
                 setWizardStep(1);
                 setIsWizardOpen(true);
               }}
-              className="px-6 py-2.5 rounded-full bg-[#E66C7D] text-white text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-[#d45668] transition-all shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
+              className="px-3.5 sm:px-5 lg:px-6 py-2 sm:py-2.5 rounded-full bg-[#E66C7D] text-white text-[10px] sm:text-[11px] uppercase tracking-[0.14em] sm:tracking-[0.2em] font-semibold hover:bg-[#d45668] transition-all shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
             >
               Reservar Cita
             </button>
+
+            {/* Mobile & Tablet Hamburger Toggle */}
+            <button
+              type="button"
+              onClick={() => setIsNavMenuOpen((prev) => !prev)}
+              className="lg:hidden p-2 rounded-full text-[#2B2B2B] hover:text-[#E66C7D] hover:bg-[#2B2B2B]/5 transition-colors focus:outline-none focus:ring-2 focus:ring-[#E66C7D]/30"
+              aria-expanded={isNavMenuOpen}
+              aria-label={isNavMenuOpen ? "Cerrar menú" : "Abrir menú"}
+            >
+              {isNavMenuOpen ? (
+                <X className="w-5 h-5 sm:w-6 sm:h-6" />
+              ) : (
+                <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
+              )}
+            </button>
           </div>
         </div>
+
+        {/* Mobile & Tablet Dropdown Navigation */}
+        {isNavMenuOpen && (
+          <div className="lg:hidden border-t border-[#2B2B2B]/10 bg-[#FAF6F0]/98 backdrop-blur-md px-6 py-5 shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
+            <nav className="flex flex-col space-y-3 pb-4 border-b border-[#2B2B2B]/10">
+              <a
+                href="#inicio"
+                onClick={() => setIsNavMenuOpen(false)}
+                className="py-1.5 text-xs sm:text-sm uppercase tracking-[0.2em] font-medium text-[#2B2B2B] hover:text-[#E66C7D] transition-colors"
+              >
+                Inicio
+              </a>
+              <a
+                href="#sobre-nosotras"
+                onClick={() => setIsNavMenuOpen(false)}
+                className="py-1.5 text-xs sm:text-sm uppercase tracking-[0.2em] font-medium text-[#2B2B2B] hover:text-[#E66C7D] transition-colors"
+              >
+                Sobre Nosotras
+              </a>
+              <a
+                href="#servicios"
+                onClick={() => setIsNavMenuOpen(false)}
+                className="py-1.5 text-xs sm:text-sm uppercase tracking-[0.2em] font-medium text-[#2B2B2B] hover:text-[#E66C7D] transition-colors"
+              >
+                Servicios
+              </a>
+              <a
+                href="#ubicacion"
+                onClick={() => setIsNavMenuOpen(false)}
+                className="py-1.5 text-xs sm:text-sm uppercase tracking-[0.2em] font-medium text-[#2B2B2B] hover:text-[#E66C7D] transition-colors"
+              >
+                Ubicación
+              </a>
+            </nav>
+
+            <div className="pt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-[#2B2B2B]/70">
+              <div>
+                <p className="font-semibold text-[#2B2B2B]">Horario de Atención</p>
+                <p>Lunes a Sábado: 8:00 am – 7:00 pm</p>
+              </div>
+              <a
+                href={BUSINESS_INFO.whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-[#E66C7D] font-medium hover:underline"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span>WhatsApp Directo</span>
+              </a>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Hero Section */}
