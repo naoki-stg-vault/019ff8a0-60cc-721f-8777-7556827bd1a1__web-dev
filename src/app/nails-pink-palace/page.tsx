@@ -21,6 +21,7 @@ import {
 export default function NailsPinkPalacePage() {
   // State for appointments & settings
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [services, setServices] = useState<NailService[]>(NAIL_SERVICES);
   const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>(DEFAULT_NOTIFICATIONS);
   const [holidays, setHolidays] = useState<string[]>([]);
 
@@ -32,6 +33,9 @@ export default function NailsPinkPalacePage() {
   // Modals & Panels
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [reschedulingApp, setReschedulingApp] = useState<Appointment | null>(null);
+  const [rescheduleDate, setRescheduleDate] = useState<string>("");
+  const [rescheduleTime, setRescheduleTime] = useState<string>("");
 
   // Wizard state (Step 1 to 5 + Success)
   const [wizardStep, setWizardStep] = useState<number>(1);
@@ -64,6 +68,19 @@ export default function NailsPinkPalacePage() {
       } else {
         setAppointments(INITIAL_SAMPLE_APPOINTMENTS);
         localStorage.setItem("npp_appointments", JSON.stringify(INITIAL_SAMPLE_APPOINTMENTS));
+      }
+
+      const storedServices = localStorage.getItem("npp_services");
+      if (storedServices) {
+        try {
+          const parsed = JSON.parse(storedServices);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setServices(parsed);
+            setSelectedService(parsed[0]);
+          }
+        } catch { /* ignore */ }
+      } else {
+        localStorage.setItem("npp_services", JSON.stringify(NAIL_SERVICES));
       }
 
       const storedPhone = localStorage.getItem("npp_client_phone");
@@ -101,6 +118,24 @@ export default function NailsPinkPalacePage() {
     const mm = String(tomorrow.getMonth() + 1).padStart(2, "0");
     const dd = String(tomorrow.getDate()).padStart(2, "0");
     setSelectedDate(`${yyyy}-${mm}-${dd}`);
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "npp_services" && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setServices(parsed);
+          }
+        } catch { /* ignore */ }
+      }
+      if (e.key === "npp_appointments" && e.newValue) {
+        try {
+          setAppointments(JSON.parse(e.newValue));
+        } catch { /* ignore */ }
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   // Sync appointments to localStorage
@@ -123,9 +158,9 @@ export default function NailsPinkPalacePage() {
 
   // Filtered services
   const displayedServices = useMemo(() => {
-    if (activeCategory === "todos") return NAIL_SERVICES;
-    return NAIL_SERVICES.filter((s) => s.category === activeCategory);
-  }, [activeCategory]);
+    if (activeCategory === "todos") return services;
+    return services.filter((s) => s.category === activeCategory);
+  }, [services, activeCategory]);
 
   // Compute available slots for currently selected date & service
   const availableSlots = useMemo(() => {
@@ -231,6 +266,40 @@ export default function NailsPinkPalacePage() {
       );
       saveAppointments(updated);
     }
+  };
+
+  // Reschedule available slots
+  const rescheduleAvailableSlots = useMemo(() => {
+    if (!reschedulingApp || !rescheduleDate) return [];
+    const srv = services.find((s) => s.id === reschedulingApp.serviceId) || services[0];
+    const otherApps = appointments.filter((a) => a.id !== reschedulingApp.id);
+    return getAvailableSlots(rescheduleDate, srv.durationMin, otherApps, holidays);
+  }, [reschedulingApp, rescheduleDate, services, appointments, holidays]);
+
+  const handleConfirmClientReschedule = () => {
+    if (!reschedulingApp || !rescheduleDate || !rescheduleTime) {
+      alert("Por favor selecciona una fecha y hora disponible.");
+      return;
+    }
+    const srv = services.find((s) => s.id === reschedulingApp.serviceId) || services[0];
+    const endTime = addMinutesToTime(rescheduleTime, srv.durationMin);
+    const updated = appointments.map((a) =>
+      a.id === reschedulingApp.id
+        ? {
+            ...a,
+            date: rescheduleDate,
+            time: rescheduleTime,
+            endTime,
+            status: "confirmada" as const,
+            notes: a.notes
+              ? `${a.notes} (Reagendada para el ${rescheduleDate} a las ${rescheduleTime})`
+              : `Reagendada para el ${rescheduleDate} a las ${rescheduleTime}`,
+          }
+        : a
+    );
+    saveAppointments(updated);
+    setReschedulingApp(null);
+    alert(`¡Tu cita ha sido reagendada con éxito para el ${rescheduleDate} a las ${rescheduleTime}!`);
   };
 
   // Min date selector: today
@@ -767,7 +836,7 @@ export default function NailsPinkPalacePage() {
                   </div>
 
                   <div className="space-y-3 max-h-[360px] overflow-y-auto pr-2">
-                    {NAIL_SERVICES.map((srv) => {
+                    {services.map((srv) => {
                       const isSelected = selectedService.id === srv.id;
                       return (
                         <div
@@ -1354,13 +1423,26 @@ export default function NailsPinkPalacePage() {
                             </span>
 
                             {app.status === "confirmada" && (
-                              <button
-                                type="button"
-                                onClick={() => handleCancelAppointment(app.id)}
-                                className="text-red-600 hover:text-red-800 underline text-[11px]"
-                              >
-                                Cancelar cita
-                              </button>
+                              <div className="flex items-center gap-3">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setReschedulingApp(app);
+                                    setRescheduleDate(app.date);
+                                    setRescheduleTime(app.time);
+                                  }}
+                                  className="text-[#E66C7D] hover:underline font-semibold text-[11px]"
+                                >
+                                  Reagendar
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleCancelAppointment(app.id)}
+                                  className="text-red-600 hover:text-red-800 underline text-[11px]"
+                                >
+                                  Cancelar cita
+                                </button>
+                              </div>
                             )}
                           </div>
                         </div>
@@ -1369,6 +1451,107 @@ export default function NailsPinkPalacePage() {
                   )}
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Client Rescheduling Modal */}
+      {reschedulingApp && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm overflow-y-auto">
+          <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-[#2B2B2B]/10 overflow-hidden p-6 space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+              <div>
+                <h3 className="font-playfair text-xl font-bold text-[#2B2B2B]">
+                  Reagendar Cita
+                </h3>
+                <p className="text-xs text-[#2B2B2B]/60 mt-0.5">
+                  {reschedulingApp.serviceName}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setReschedulingApp(null)}
+                className="h-8 w-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 text-sm"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-3 bg-[#FAF6F1] rounded-xl text-xs space-y-1">
+              <p className="text-gray-500">Horario actual:</p>
+              <p className="font-bold text-[#2B2B2B]">
+                📅 {reschedulingApp.date} · {formatTime12h(reschedulingApp.time)} – {formatTime12h(reschedulingApp.endTime)}
+              </p>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="block font-semibold text-[#2B2B2B] mb-1">
+                  Nueva Fecha *
+                </label>
+                <input
+                  type="date"
+                  min={todayStr}
+                  value={rescheduleDate}
+                  onChange={(e) => {
+                    setRescheduleDate(e.target.value);
+                    setRescheduleTime("");
+                  }}
+                  className="w-full p-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#E66C7D]"
+                />
+              </div>
+
+              {rescheduleDate && (
+                <div>
+                  <label className="block font-semibold text-[#2B2B2B] mb-1">
+                    Nueva Hora Disponible *
+                  </label>
+                  {rescheduleAvailableSlots.length === 0 ? (
+                    <p className="text-xs text-red-500 italic p-2 bg-red-50 rounded-lg">
+                      No hay horarios disponibles para esta fecha (domingos cerrado o sin cupos). Elige otra fecha.
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto p-1">
+                      {rescheduleAvailableSlots.map((slot) => (
+                        <button
+                          key={slot.time}
+                          type="button"
+                          disabled={!slot.available}
+                          onClick={() => setRescheduleTime(slot.time)}
+                          className={`p-2 rounded-xl text-xs font-semibold text-center border transition-all ${
+                            !slot.available
+                              ? "opacity-40 bg-gray-100 border-gray-200 cursor-not-allowed text-gray-400"
+                              : rescheduleTime === slot.time
+                              ? "bg-[#E66C7D] text-white border-[#E66C7D]"
+                              : "bg-white text-[#2B2B2B] border-gray-200 hover:border-[#E66C7D]"
+                          }`}
+                        >
+                          {formatTime12h(slot.time)}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="pt-2 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setReschedulingApp(null)}
+                className="px-4 py-2 rounded-xl border border-gray-300 text-gray-600 text-xs hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                disabled={!rescheduleDate || !rescheduleTime}
+                onClick={handleConfirmClientReschedule}
+                className="px-5 py-2 rounded-xl bg-[#E66C7D] text-white text-xs font-semibold hover:bg-[#d45668] disabled:opacity-50 transition-all"
+              >
+                Confirmar Reagendación
+              </button>
             </div>
           </div>
         </div>
