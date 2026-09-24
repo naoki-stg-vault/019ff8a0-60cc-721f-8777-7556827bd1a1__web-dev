@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Space_Grotesk, Playfair_Display } from "next/font/google";
+import { Fraunces, Space_Grotesk, Playfair_Display, Inter } from "next/font/google";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import "./globals.css";
 
@@ -24,6 +24,12 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Catalina Cobap — Web Design + Development / Costa Rica",
   description:
@@ -36,7 +42,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${grotesk.variable} ${playfair.variable}`}>
+    <html lang="en" className={`${fraunces.variable} ${grotesk.variable} ${playfair.variable} ${inter.variable}`}>
       <body>
         <SmoothScroll>{children}</SmoothScroll>
       </body>

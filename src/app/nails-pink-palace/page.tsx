@@ -266,7 +266,7 @@ export default function NailsPinkPalacePage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#FAF6F0] text-[#2B2B2B] font-sans antialiased selection:bg-[#E66C7D] selection:text-white">
+    <div className="min-h-screen bg-[#FAF6F0] text-[#2B2B2B] font-inter antialiased selection:bg-[#E66C7D] selection:text-white">
       {/* Top Banner Notice */}
       <div className="bg-[#2B2B2B] text-white text-[11px] uppercase tracking-[0.22em] py-2 px-4 text-center">
         Salón de Uñas Profesional · Valentina Cobaleda Pallares · Costa Rica · Horario: Lun–Sáb 8am–7pm
@@ -280,7 +280,7 @@ export default function NailsPinkPalacePage() {
             <span className="font-playfair italic text-2xl md:text-3xl tracking-tight text-[#E66C7D] group-hover:opacity-90 transition-opacity">
               Nails Pink Palace
             </span>
-            <span className="font-sans text-[9px] uppercase tracking-[0.3em] text-[#2B2B2B]/60 -mt-1">
+            <span className="font-inter text-[9px] uppercase tracking-[0.3em] text-[#2B2B2B]/60 -mt-1">
               By Valentina Cobaleda
             </span>
           </a>
@@ -354,7 +354,7 @@ export default function NailsPinkPalacePage() {
               ARTE, CUIDADO Y ESTILO EN CADA DETALLE PARA <span className="italic text-[#E66C7D]">TUS UÑAS</span>.
             </h1>
 
-            <p className="font-sans text-lg md:text-xl text-[#2B2B2B]/75 leading-relaxed max-w-2xl">
+            <p className="font-inter text-lg md:text-xl text-[#2B2B2B]/75 leading-relaxed max-w-2xl">
               Técnicas avanzadas de salón enfocadas en la belleza y salud de tu uña natural. Sin acrílico, con productos premium y acabados impecables diseñados para durar.
             </p>
 
@@ -365,14 +365,14 @@ export default function NailsPinkPalacePage() {
                   setWizardStep(1);
                   setIsWizardOpen(true);
                 }}
-                className="px-8 py-4 rounded-full bg-[#E66C7D] text-white font-sans text-xs uppercase tracking-[0.25em] font-semibold hover:bg-[#d45668] transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
+                className="px-8 py-4 rounded-full bg-[#E66C7D] text-white font-inter text-xs uppercase tracking-[0.25em] font-semibold hover:bg-[#d45668] transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
               >
                 Reservar Cita Ahora
               </button>
 
               <a
                 href="#servicios"
-                className="px-8 py-4 rounded-full border border-[#2B2B2B]/20 text-[#2B2B2B] font-sans text-xs uppercase tracking-[0.25em] font-semibold hover:border-[#2B2B2B] transition-colors"
+                className="px-8 py-4 rounded-full border border-[#2B2B2B]/20 text-[#2B2B2B] font-inter text-xs uppercase tracking-[0.25em] font-semibold hover:border-[#2B2B2B] transition-colors"
               >
                 Ver Servicios y Precios
               </a>
@@ -382,15 +382,15 @@ export default function NailsPinkPalacePage() {
             <div className="pt-8 border-t border-[#2B2B2B]/10 grid grid-cols-3 gap-4">
               <div>
                 <p className="font-playfair text-2xl font-bold text-[#E66C7D]">100%</p>
-                <p className="font-sans text-xs uppercase tracking-wider text-[#2B2B2B]/60">Sin Acrílico</p>
+                <p className="font-inter text-xs uppercase tracking-wider text-[#2B2B2B]/60">Sin Acrílico</p>
               </div>
               <div>
                 <p className="font-playfair text-2xl font-bold text-[#2B2B2B]">SINPE</p>
-                <p className="font-sans text-xs uppercase tracking-wider text-[#2B2B2B]/60">O Efectivo</p>
+                <p className="font-inter text-xs uppercase tracking-wider text-[#2B2B2B]/60">O Efectivo</p>
               </div>
               <div>
                 <p className="font-playfair text-2xl font-bold text-[#2B2B2B]">Sin Cuenta</p>
-                <p className="font-sans text-xs uppercase tracking-wider text-[#2B2B2B]/60">Tu WhatsApp es tu llave</p>
+                <p className="font-inter text-xs uppercase tracking-wider text-[#2B2B2B]/60">Tu WhatsApp es tu llave</p>
               </div>
             </div>
           </div>
@@ -408,7 +408,7 @@ export default function NailsPinkPalacePage() {
 
               <div className="absolute bottom-6 left-6 right-6 text-white p-4 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30">
                 <p className="font-playfair italic text-lg">“Cuidamos la estructura natural de tu uña”</p>
-                <p className="font-sans text-[11px] uppercase tracking-[0.2em] opacity-90 mt-1">
+                <p className="font-inter text-[11px] uppercase tracking-[0.2em] opacity-90 mt-1">
                   Valentina Cobaleda — Estilista
                 </p>
               </div>
@@ -421,13 +421,13 @@ export default function NailsPinkPalacePage() {
       <section id="sobre-nosotras" className="py-20 md:py-28 bg-[#FAF6F1] border-y border-[#2B2B2B]/10">
         <div className="mx-auto max-w-7xl px-6 md:px-12">
           <div className="max-w-3xl mx-auto text-center space-y-4 mb-16">
-            <p className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#E66C7D] font-semibold">
+            <p className="font-inter text-[11px] uppercase tracking-[0.3em] text-[#E66C7D] font-semibold">
               Sobre Nails Pink Palace
             </p>
             <h2 className="font-playfair text-3xl md:text-5xl tracking-tight text-[#2B2B2B]">
               UNA EXPERIENCIA PENSADA PARA TU <span className="italic text-[#E66C7D]">BIENESTAR</span>
             </h2>
-            <p className="font-sans text-base md:text-lg text-[#2B2B2B]/75 leading-relaxed pt-2">
+            <p className="font-inter text-base md:text-lg text-[#2B2B2B]/75 leading-relaxed pt-2">
               {BUSINESS_INFO.description}
             </p>
           </div>
@@ -437,10 +437,10 @@ export default function NailsPinkPalacePage() {
             <div className="bg-white p-8 rounded-2xl border border-[#2B2B2B]/10 shadow-sm flex flex-col justify-between">
               <div>
                 <span className="font-playfair text-3xl text-[#E66C7D] mb-4 block">01</span>
-                <h3 className="font-sans text-sm uppercase tracking-[0.15em] font-bold text-[#2B2B2B] mb-2">
+                <h3 className="font-inter text-sm uppercase tracking-[0.15em] font-bold text-[#2B2B2B] mb-2">
                   Uña Natural Sana
                 </h3>
-                <p className="font-sans text-sm text-[#2B2B2B]/70 leading-relaxed">
+                <p className="font-inter text-sm text-[#2B2B2B]/70 leading-relaxed">
                   No trabajamos acrílico invasivo. Cada procedimiento protege tu matriz y lámina ungueal.
                 </p>
               </div>
@@ -449,10 +449,10 @@ export default function NailsPinkPalacePage() {
             <div className="bg-white p-8 rounded-2xl border border-[#2B2B2B]/10 shadow-sm flex flex-col justify-between">
               <div>
                 <span className="font-playfair text-3xl text-[#E66C7D] mb-4 block">02</span>
-                <h3 className="font-sans text-sm uppercase tracking-[0.15em] font-bold text-[#2B2B2B] mb-2">
+                <h3 className="font-inter text-sm uppercase tracking-[0.15em] font-bold text-[#2B2B2B] mb-2">
                   Técnica Rusa de Precisión
                 </h3>
-                <p className="font-sans text-sm text-[#2B2B2B]/70 leading-relaxed">
+                <p className="font-inter text-sm text-[#2B2B2B]/70 leading-relaxed">
                   Limpieza anatómica milimétrica con torno para bordes perfectos y mayor duración de esmalte.
                 </p>
               </div>
@@ -461,10 +461,10 @@ export default function NailsPinkPalacePage() {
             <div className="bg-white p-8 rounded-2xl border border-[#2B2B2B]/10 shadow-sm flex flex-col justify-between">
               <div>
                 <span className="font-playfair text-3xl text-[#E66C7D] mb-4 block">03</span>
-                <h3 className="font-sans text-sm uppercase tracking-[0.15em] font-bold text-[#2B2B2B] mb-2">
+                <h3 className="font-inter text-sm uppercase tracking-[0.15em] font-bold text-[#2B2B2B] mb-2">
                   Materiales Premium
                 </h3>
-                <p className="font-sans text-sm text-[#2B2B2B]/70 leading-relaxed">
+                <p className="font-inter text-sm text-[#2B2B2B]/70 leading-relaxed">
                   Polygel, Rubber Base y geles con calcio de máxima adherencia, flexibilidad y brillo.
                 </p>
               </div>
@@ -473,10 +473,10 @@ export default function NailsPinkPalacePage() {
             <div className="bg-white p-8 rounded-2xl border border-[#2B2B2B]/10 shadow-sm flex flex-col justify-between">
               <div>
                 <span className="font-playfair text-3xl text-[#E66C7D] mb-4 block">04</span>
-                <h3 className="font-sans text-sm uppercase tracking-[0.15em] font-bold text-[#2B2B2B] mb-2">
+                <h3 className="font-inter text-sm uppercase tracking-[0.15em] font-bold text-[#2B2B2B] mb-2">
                   Agendamiento Ágil
                 </h3>
-                <p className="font-sans text-sm text-[#2B2B2B]/70 leading-relaxed">
+                <p className="font-inter text-sm text-[#2B2B2B]/70 leading-relaxed">
                   Elige tu horario en 1 minuto, paga con SINPE Móvil o efectivo, y recibe confirmación automática.
                 </p>
               </div>
@@ -490,7 +490,7 @@ export default function NailsPinkPalacePage() {
         <div className="mx-auto max-w-7xl px-6 md:px-12">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
             <div>
-              <p className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#E66C7D] font-semibold mb-2">
+              <p className="font-inter text-[11px] uppercase tracking-[0.3em] text-[#E66C7D] font-semibold mb-2">
                 Menú de Servicios
               </p>
               <h2 className="font-playfair text-3xl md:text-5xl tracking-tight text-[#2B2B2B]">
@@ -541,7 +541,7 @@ export default function NailsPinkPalacePage() {
                       {formatCRC(service.priceCRC)}
                     </div>
                     {service.popular && (
-                      <div className="absolute top-4 left-4 bg-[#E66C7D] text-white px-3 py-1 rounded-full font-sans text-[10px] uppercase tracking-[0.2em] font-semibold">
+                      <div className="absolute top-4 left-4 bg-[#E66C7D] text-white px-3 py-1 rounded-full font-inter text-[10px] uppercase tracking-[0.2em] font-semibold">
                         Favorito
                       </div>
                     )}
@@ -558,7 +558,7 @@ export default function NailsPinkPalacePage() {
                       {service.name}
                     </h3>
 
-                    <p className="font-sans text-sm text-[#2B2B2B]/70 leading-relaxed mb-6">
+                    <p className="font-inter text-sm text-[#2B2B2B]/70 leading-relaxed mb-6">
                       {service.description}
                     </p>
                   </div>
@@ -568,7 +568,7 @@ export default function NailsPinkPalacePage() {
                   <button
                     type="button"
                     onClick={() => openBookingWithService(service)}
-                    className="w-full py-3.5 rounded-full bg-[#FAF6F1] text-[#2B2B2B] group-hover:bg-[#E66C7D] group-hover:text-white font-sans text-xs uppercase tracking-[0.2em] font-semibold transition-all flex items-center justify-center gap-2"
+                    className="w-full py-3.5 rounded-full bg-[#FAF6F1] text-[#2B2B2B] group-hover:bg-[#E66C7D] group-hover:text-white font-inter text-xs uppercase tracking-[0.2em] font-semibold transition-all flex items-center justify-center gap-2"
                   >
                     <span>Reservar Este Servicio</span>
                     <span>→</span>
@@ -588,10 +588,10 @@ export default function NailsPinkPalacePage() {
               ⚡
             </div>
             <div>
-              <h4 className="font-sans text-sm uppercase tracking-wider font-bold text-[#2B2B2B] mb-1">
+              <h4 className="font-inter text-sm uppercase tracking-wider font-bold text-[#2B2B2B] mb-1">
                 Anticipación Mínima: 2 Horas
               </h4>
-              <p className="font-sans text-xs text-[#2B2B2B]/70 leading-relaxed">
+              <p className="font-inter text-xs text-[#2B2B2B]/70 leading-relaxed">
                 Para garantizar la preparación adecuada de tu cita, el sistema requiere al menos 2 horas de anticipación.
               </p>
             </div>
@@ -602,10 +602,10 @@ export default function NailsPinkPalacePage() {
               💳
             </div>
             <div>
-              <h4 className="font-sans text-sm uppercase tracking-wider font-bold text-[#2B2B2B] mb-1">
+              <h4 className="font-inter text-sm uppercase tracking-wider font-bold text-[#2B2B2B] mb-1">
                 SINPE Móvil & Efectivo
               </h4>
-              <p className="font-sans text-xs text-[#2B2B2B]/70 leading-relaxed">
+              <p className="font-inter text-xs text-[#2B2B2B]/70 leading-relaxed">
                 Paga al finalizar el servicio. Transferencia directa a 8735-7321 (Valentina Cobaleda) o en efectivo.
               </p>
             </div>
@@ -616,10 +616,10 @@ export default function NailsPinkPalacePage() {
               📱
             </div>
             <div>
-              <h4 className="font-sans text-sm uppercase tracking-wider font-bold text-[#2B2B2B] mb-1">
+              <h4 className="font-inter text-sm uppercase tracking-wider font-bold text-[#2B2B2B] mb-1">
                 Sin Contraseñas
               </h4>
-              <p className="font-sans text-xs text-[#2B2B2B]/70 leading-relaxed">
+              <p className="font-inter text-xs text-[#2B2B2B]/70 leading-relaxed">
                 Tu número de WhatsApp almacena tu historial de citas para que nunca tengas que recordar contraseñas.
               </p>
             </div>
@@ -631,13 +631,13 @@ export default function NailsPinkPalacePage() {
       <section id="ubicacion" className="py-20 md:py-28">
         <div className="mx-auto max-w-7xl px-6 md:px-12 grid md:grid-cols-12 gap-12 items-center">
           <div className="md:col-span-5 space-y-6">
-            <p className="font-sans text-[11px] uppercase tracking-[0.3em] text-[#E66C7D] font-semibold">
+            <p className="font-inter text-[11px] uppercase tracking-[0.3em] text-[#E66C7D] font-semibold">
               Ubicación & Contacto
             </p>
             <h2 className="font-playfair text-3xl md:text-5xl tracking-tight text-[#2B2B2B]">
               VISÍTANOS EN <span className="italic text-[#E66C7D]">COSTA RICA</span>
             </h2>
-            <p className="font-sans text-base text-[#2B2B2B]/75 leading-relaxed">
+            <p className="font-inter text-base text-[#2B2B2B]/75 leading-relaxed">
               Disfruta de un ambiente privado, relajante y acogedor mientras cuidamos de tus manos y pies.
             </p>
 
@@ -645,24 +645,24 @@ export default function NailsPinkPalacePage() {
               <div className="flex items-center gap-3">
                 <span className="text-[#E66C7D] text-lg">📍</span>
                 <div>
-                  <p className="font-sans text-xs uppercase tracking-wider font-bold text-[#2B2B2B]">Ubicación</p>
-                  <p className="font-sans text-sm text-[#2B2B2B]/70">Costa Rica</p>
+                  <p className="font-inter text-xs uppercase tracking-wider font-bold text-[#2B2B2B]">Ubicación</p>
+                  <p className="font-inter text-sm text-[#2B2B2B]/70">Costa Rica</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
                 <span className="text-[#E66C7D] text-lg">🕒</span>
                 <div>
-                  <p className="font-sans text-xs uppercase tracking-wider font-bold text-[#2B2B2B]">Horario de Atención</p>
-                  <p className="font-sans text-sm text-[#2B2B2B]/70">Lunes a Sábado: 8:00 a.m. – 7:00 p.m. · Domingo: Cerrado</p>
+                  <p className="font-inter text-xs uppercase tracking-wider font-bold text-[#2B2B2B]">Horario de Atención</p>
+                  <p className="font-inter text-sm text-[#2B2B2B]/70">Lunes a Sábado: 8:00 a.m. – 7:00 p.m. · Domingo: Cerrado</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
                 <span className="text-[#E66C7D] text-lg">💬</span>
                 <div>
-                  <p className="font-sans text-xs uppercase tracking-wider font-bold text-[#2B2B2B]">WhatsApp Directo</p>
-                  <p className="font-sans text-sm text-[#2B2B2B]/70">8735-7321 (Valentina Cobaleda)</p>
+                  <p className="font-inter text-xs uppercase tracking-wider font-bold text-[#2B2B2B]">WhatsApp Directo</p>
+                  <p className="font-inter text-sm text-[#2B2B2B]/70">8735-7321 (Valentina Cobaleda)</p>
                 </div>
               </div>
             </div>
@@ -672,7 +672,7 @@ export default function NailsPinkPalacePage() {
                 href={BUSINESS_INFO.locationUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-[#2B2B2B] text-white font-sans text-xs uppercase tracking-[0.25em] font-semibold hover:bg-[#E66C7D] transition-colors shadow-md"
+                className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-[#2B2B2B] text-white font-inter text-xs uppercase tracking-[0.25em] font-semibold hover:bg-[#E66C7D] transition-colors shadow-md"
               >
                 <span>Abrir en Google Maps</span>
                 <span>↗</span>
@@ -689,17 +689,17 @@ export default function NailsPinkPalacePage() {
                     Abierto Lun–Sáb
                   </span>
                 </div>
-                <p className="font-sans text-sm text-[#2B2B2B]/80 leading-relaxed">
+                <p className="font-inter text-sm text-[#2B2B2B]/80 leading-relaxed">
                   Para tu comodidad y privacidad, atendemos únicamente con cita previa. Al agendar en nuestro sistema, reservamos el tiempo exclusivo para ti.
                 </p>
                 <div className="p-5 bg-white rounded-2xl border border-[#2B2B2B]/10 space-y-2">
-                  <p className="font-sans text-xs uppercase tracking-wider font-bold text-[#2B2B2B]">
+                  <p className="font-inter text-xs uppercase tracking-wider font-bold text-[#2B2B2B]">
                     Información para pago SINPE Móvil
                   </p>
-                  <p className="font-sans text-sm text-[#2B2B2B]">
+                  <p className="font-inter text-sm text-[#2B2B2B]">
                     Número: <strong className="font-bold text-[#E66C7D]">8735-7321</strong>
                   </p>
-                  <p className="font-sans text-xs text-[#2B2B2B]/60">
+                  <p className="font-inter text-xs text-[#2B2B2B]/60">
                     A nombre de: Valentina Cobaleda (se cancela al finalizar el servicio).
                   </p>
                 </div>
@@ -714,7 +714,7 @@ export default function NailsPinkPalacePage() {
         <div className="mx-auto max-w-7xl px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-8 border-b border-white/10 pb-12">
           <div className="text-center md:text-left">
             <p className="font-playfair italic text-3xl text-[#E66C7D]">Nails Pink Palace</p>
-            <p className="font-sans text-xs uppercase tracking-[0.25em] text-white/60 mt-1">
+            <p className="font-inter text-xs uppercase tracking-[0.25em] text-white/60 mt-1">
               Valentina Cobaleda Pallares · Costa Rica
             </p>
           </div>
@@ -762,7 +762,7 @@ export default function NailsPinkPalacePage() {
             <div className="px-8 pt-8 pb-4 border-b border-[#2B2B2B]/10 flex items-center justify-between">
               <div>
                 <p className="font-playfair italic text-xl text-[#E66C7D]">Nails Pink Palace</p>
-                <p className="font-sans text-xs uppercase tracking-[0.2em] text-[#2B2B2B]/60">
+                <p className="font-inter text-xs uppercase tracking-[0.2em] text-[#2B2B2B]/60">
                   {wizardStep <= 5 ? `Paso ${wizardStep} de 5 — Agendamiento` : "¡Cita Confirmada!"}
                 </p>
               </div>
@@ -794,7 +794,7 @@ export default function NailsPinkPalacePage() {
                 <div className="space-y-6">
                   <div>
                     <h3 className="font-playfair text-2xl text-[#2B2B2B]">Elige tu Servicio</h3>
-                    <p className="font-sans text-sm text-[#2B2B2B]/70">
+                    <p className="font-inter text-sm text-[#2B2B2B]/70">
                       Selecciona la técnica de manicura, pedicura o cuidado para tu sesión.
                     </p>
                   </div>
@@ -821,8 +821,8 @@ export default function NailsPinkPalacePage() {
                               className="accent-[#E66C7D] h-4 w-4"
                             />
                             <div>
-                              <p className="font-sans text-sm font-bold text-[#2B2B2B]">{srv.name}</p>
-                              <p className="font-sans text-xs text-[#2B2B2B]/60">
+                              <p className="font-inter text-sm font-bold text-[#2B2B2B]">{srv.name}</p>
+                              <p className="font-inter text-xs text-[#2B2B2B]/60">
                                 ⏱ {srv.durationMin} min · {srv.category}
                               </p>
                             </div>
@@ -845,7 +845,7 @@ export default function NailsPinkPalacePage() {
                 <div className="space-y-6">
                   <div>
                     <h3 className="font-playfair text-2xl text-[#2B2B2B]">Método de Pago</h3>
-                    <p className="font-sans text-sm text-[#2B2B2B]/70">
+                    <p className="font-inter text-sm text-[#2B2B2B]/70">
                       Elige cómo deseas abonar tu servicio al finalizar en el salón.
                     </p>
                   </div>
@@ -869,7 +869,7 @@ export default function NailsPinkPalacePage() {
                             onChange={() => setSelectedPayment("sinpe")}
                             className="accent-[#E66C7D] h-4 w-4"
                           />
-                          <span className="font-sans text-sm font-bold uppercase tracking-wider text-[#2B2B2B]">
+                          <span className="font-inter text-sm font-bold uppercase tracking-wider text-[#2B2B2B]">
                             SINPE Móvil
                           </span>
                         </div>
@@ -879,7 +879,7 @@ export default function NailsPinkPalacePage() {
                       </div>
 
                       {/* Required instruction text */}
-                      <p className="font-sans text-xs text-[#2B2B2B]/80 pl-7 leading-relaxed">
+                      <p className="font-inter text-xs text-[#2B2B2B]/80 pl-7 leading-relaxed">
                         Pago por SINPE: <strong>8735-7321</strong> — Valentina Cobaleda. Realizar el pago al finalizar el servicio.
                       </p>
                     </div>
@@ -902,7 +902,7 @@ export default function NailsPinkPalacePage() {
                             onChange={() => setSelectedPayment("efectivo")}
                             className="accent-[#E66C7D] h-4 w-4"
                           />
-                          <span className="font-sans text-sm font-bold uppercase tracking-wider text-[#2B2B2B]">
+                          <span className="font-inter text-sm font-bold uppercase tracking-wider text-[#2B2B2B]">
                             Efectivo
                           </span>
                         </div>
@@ -912,7 +912,7 @@ export default function NailsPinkPalacePage() {
                       </div>
 
                       {/* Required instruction text */}
-                      <p className="font-sans text-xs text-[#2B2B2B]/80 pl-7 leading-relaxed">
+                      <p className="font-inter text-xs text-[#2B2B2B]/80 pl-7 leading-relaxed">
                         Pago en efectivo, al finalizar el servicio.
                       </p>
                     </div>
@@ -925,14 +925,14 @@ export default function NailsPinkPalacePage() {
                 <div className="space-y-6">
                   <div>
                     <h3 className="font-playfair text-2xl text-[#2B2B2B]">Día y Hora de tu Cita</h3>
-                    <p className="font-sans text-sm text-[#2B2B2B]/70">
+                    <p className="font-inter text-sm text-[#2B2B2B]/70">
                       Horario disponible de 8:00 a.m. a 7:00 p.m. con mínimo 2 horas de anticipación.
                     </p>
                   </div>
 
                   {/* Date Input */}
                   <div>
-                    <label className="block font-sans text-xs uppercase tracking-wider font-bold text-[#2B2B2B] mb-2">
+                    <label className="block font-inter text-xs uppercase tracking-wider font-bold text-[#2B2B2B] mb-2">
                       Selecciona la fecha:
                     </label>
                     <input
@@ -943,20 +943,20 @@ export default function NailsPinkPalacePage() {
                         setSelectedDate(e.target.value);
                         setSelectedTime("");
                       }}
-                      className="w-full p-3.5 rounded-xl border border-[#2B2B2B]/20 bg-white text-[#2B2B2B] font-sans text-sm focus:border-[#E66C7D] focus:outline-none"
+                      className="w-full p-3.5 rounded-xl border border-[#2B2B2B]/20 bg-white text-[#2B2B2B] font-inter text-sm focus:border-[#E66C7D] focus:outline-none"
                     />
                   </div>
 
                   {/* Slots Grid */}
                   <div>
-                    <label className="block font-sans text-xs uppercase tracking-wider font-bold text-[#2B2B2B] mb-2">
+                    <label className="block font-inter text-xs uppercase tracking-wider font-bold text-[#2B2B2B] mb-2">
                       Horarios disponibles para {selectedService.name} ({selectedService.durationMin} min):
                     </label>
 
                     {availableSlots.length === 0 ? (
                       <div className="p-8 text-center bg-white rounded-2xl border border-[#2B2B2B]/10">
                         <p className="font-playfair text-lg text-[#E66C7D] mb-1">Cerrado o sin horarios disponibles</p>
-                        <p className="font-sans text-xs text-[#2B2B2B]/60">
+                        <p className="font-inter text-xs text-[#2B2B2B]/60">
                           Los domingos el salón permanece cerrado. Por favor selecciona otra fecha de Lunes a Sábado.
                         </p>
                       </div>
@@ -971,7 +971,7 @@ export default function NailsPinkPalacePage() {
                               disabled={!slot.available}
                               onClick={() => setSelectedTime(slot.time)}
                               title={slot.reason}
-                              className={`p-3 rounded-xl text-xs font-sans font-medium transition-all ${
+                              className={`p-3 rounded-xl text-xs font-inter font-medium transition-all ${
                                 !slot.available
                                   ? "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200 line-through"
                                   : isSelected
@@ -994,14 +994,14 @@ export default function NailsPinkPalacePage() {
                 <div className="space-y-6">
                   <div>
                     <h3 className="font-playfair text-2xl text-[#2B2B2B]">Tus Datos de Contacto</h3>
-                    <p className="font-sans text-sm text-[#2B2B2B]/70">
+                    <p className="font-inter text-sm text-[#2B2B2B]/70">
                       Sin contraseñas. Tu teléfono WhatsApp sirve para identificarte y enviarte la confirmación.
                     </p>
                   </div>
 
                   <div className="space-y-4">
                     <div>
-                      <label className="block font-sans text-xs uppercase tracking-wider font-bold text-[#2B2B2B] mb-1.5">
+                      <label className="block font-inter text-xs uppercase tracking-wider font-bold text-[#2B2B2B] mb-1.5">
                         Nombre Completo *
                       </label>
                       <input
@@ -1010,12 +1010,12 @@ export default function NailsPinkPalacePage() {
                         placeholder="Ej. Mariana Rojas Solano"
                         value={clientName}
                         onChange={(e) => setClientName(e.target.value)}
-                        className="w-full p-3.5 rounded-xl border border-[#2B2B2B]/20 bg-white text-[#2B2B2B] font-sans text-sm focus:border-[#E66C7D] focus:outline-none"
+                        className="w-full p-3.5 rounded-xl border border-[#2B2B2B]/20 bg-white text-[#2B2B2B] font-inter text-sm focus:border-[#E66C7D] focus:outline-none"
                       />
                     </div>
 
                     <div>
-                      <label className="block font-sans text-xs uppercase tracking-wider font-bold text-[#2B2B2B] mb-1.5">
+                      <label className="block font-inter text-xs uppercase tracking-wider font-bold text-[#2B2B2B] mb-1.5">
                         Teléfono (WhatsApp) *
                       </label>
                       <input
@@ -1024,15 +1024,15 @@ export default function NailsPinkPalacePage() {
                         placeholder="Ej. 88214532"
                         value={clientPhone}
                         onChange={(e) => setClientPhone(e.target.value)}
-                        className="w-full p-3.5 rounded-xl border border-[#2B2B2B]/20 bg-white text-[#2B2B2B] font-sans text-sm focus:border-[#E66C7D] focus:outline-none"
+                        className="w-full p-3.5 rounded-xl border border-[#2B2B2B]/20 bg-white text-[#2B2B2B] font-inter text-sm focus:border-[#E66C7D] focus:outline-none"
                       />
-                      <p className="font-sans text-[11px] text-[#2B2B2B]/50 mt-1">
+                      <p className="font-inter text-[11px] text-[#2B2B2B]/50 mt-1">
                         Se guardará en este dispositivo para que en tus próximas visitas reconozca tu historial.
                       </p>
                     </div>
 
                     <div>
-                      <label className="block font-sans text-xs uppercase tracking-wider font-bold text-[#2B2B2B] mb-1.5">
+                      <label className="block font-inter text-xs uppercase tracking-wider font-bold text-[#2B2B2B] mb-1.5">
                         Correo Electrónico (Opcional)
                       </label>
                       <input
@@ -1040,12 +1040,12 @@ export default function NailsPinkPalacePage() {
                         placeholder="Ej. tu@correo.com"
                         value={clientEmail}
                         onChange={(e) => setClientEmail(e.target.value)}
-                        className="w-full p-3.5 rounded-xl border border-[#2B2B2B]/20 bg-white text-[#2B2B2B] font-sans text-sm focus:border-[#E66C7D] focus:outline-none"
+                        className="w-full p-3.5 rounded-xl border border-[#2B2B2B]/20 bg-white text-[#2B2B2B] font-inter text-sm focus:border-[#E66C7D] focus:outline-none"
                       />
                     </div>
 
                     <div>
-                      <label className="block font-sans text-xs uppercase tracking-wider font-bold text-[#2B2B2B] mb-1.5">
+                      <label className="block font-inter text-xs uppercase tracking-wider font-bold text-[#2B2B2B] mb-1.5">
                         Notas o Especificaciones para Valentina (Opcional)
                       </label>
                       <textarea
@@ -1053,7 +1053,7 @@ export default function NailsPinkPalacePage() {
                         placeholder="Ej. Quiero diseño minimalista con destellos dorados..."
                         value={clientNotes}
                         onChange={(e) => setClientNotes(e.target.value)}
-                        className="w-full p-3 rounded-xl border border-[#2B2B2B]/20 bg-white text-[#2B2B2B] font-sans text-sm focus:border-[#E66C7D] focus:outline-none"
+                        className="w-full p-3 rounded-xl border border-[#2B2B2B]/20 bg-white text-[#2B2B2B] font-inter text-sm focus:border-[#E66C7D] focus:outline-none"
                       />
                     </div>
                   </div>
@@ -1065,7 +1065,7 @@ export default function NailsPinkPalacePage() {
                 <div className="space-y-6">
                   <div>
                     <h3 className="font-playfair text-2xl text-[#2B2B2B]">Resumen de tu Cita</h3>
-                    <p className="font-sans text-sm text-[#2B2B2B]/70">
+                    <p className="font-inter text-sm text-[#2B2B2B]/70">
                       Revisa los detalles antes de confirmar. Al presionar confirmar, se notificará a Valentina.
                     </p>
                   </div>
@@ -1074,7 +1074,7 @@ export default function NailsPinkPalacePage() {
                     <div className="flex items-center justify-between pb-4 border-b border-[#2B2B2B]/10">
                       <div>
                         <p className="font-playfair text-xl font-bold text-[#2B2B2B]">{selectedService.name}</p>
-                        <p className="font-sans text-xs text-[#2B2B2B]/60">
+                        <p className="font-inter text-xs text-[#2B2B2B]/60">
                           ⏱ Duración estimada: {selectedService.durationMin} minutos
                         </p>
                       </div>
@@ -1083,7 +1083,7 @@ export default function NailsPinkPalacePage() {
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 text-xs font-sans">
+                    <div className="grid grid-cols-2 gap-4 text-xs font-inter">
                       <div>
                         <span className="text-[#2B2B2B]/60 uppercase tracking-wider block">Fecha y Hora</span>
                         <strong className="text-sm text-[#2B2B2B]">
@@ -1109,7 +1109,7 @@ export default function NailsPinkPalacePage() {
                       </div>
                     </div>
 
-                    <div className="p-4 bg-[#FAF6F1] rounded-xl text-xs font-sans text-[#2B2B2B]/80 space-y-1">
+                    <div className="p-4 bg-[#FAF6F1] rounded-xl text-xs font-inter text-[#2B2B2B]/80 space-y-1">
                       <p className="font-bold uppercase tracking-wider text-[#E66C7D]">Instrucciones de pago:</p>
                       {selectedPayment === "sinpe" ? (
                         <p>Pago por SINPE: 8735-7321 — Valentina Cobaleda. Realizar el pago al finalizar el servicio.</p>
@@ -1130,7 +1130,7 @@ export default function NailsPinkPalacePage() {
 
                   <div>
                     <h3 className="font-playfair text-3xl text-[#2B2B2B]">¡Cita Agendada con Éxito!</h3>
-                    <p className="font-sans text-sm text-[#2B2B2B]/70 max-w-md mx-auto mt-2">
+                    <p className="font-inter text-sm text-[#2B2B2B]/70 max-w-md mx-auto mt-2">
                       Tu cita ha quedado registrada en el sistema de Nails Pink Palace. Valentina ya ha sido notificada.
                     </p>
                   </div>
@@ -1156,7 +1156,7 @@ export default function NailsPinkPalacePage() {
                       href={createGoogleCalendarUrl(confirmedAppointment)}
                       target="_blank"
                       rel="noreferrer"
-                      className="w-full sm:w-auto px-6 py-3 rounded-full border border-[#2B2B2B]/20 text-[#2B2B2B] font-sans text-xs uppercase tracking-wider font-semibold hover:border-[#2B2B2B] transition-colors"
+                      className="w-full sm:w-auto px-6 py-3 rounded-full border border-[#2B2B2B]/20 text-[#2B2B2B] font-inter text-xs uppercase tracking-wider font-semibold hover:border-[#2B2B2B] transition-colors"
                     >
                       📅 Agregar a mi Google Calendar
                     </a>
@@ -1168,7 +1168,7 @@ export default function NailsPinkPalacePage() {
                       )}
                       target="_blank"
                       rel="noreferrer"
-                      className="w-full sm:w-auto px-6 py-3 rounded-full bg-[#E66C7D] text-white font-sans text-xs uppercase tracking-wider font-semibold hover:bg-[#d45668] transition-colors"
+                      className="w-full sm:w-auto px-6 py-3 rounded-full bg-[#E66C7D] text-white font-inter text-xs uppercase tracking-wider font-semibold hover:bg-[#d45668] transition-colors"
                     >
                       💬 Escribir a Valentina por WhatsApp
                     </a>
@@ -1247,7 +1247,7 @@ export default function NailsPinkPalacePage() {
             <div className="px-8 py-6 border-b border-[#2B2B2B]/10 flex items-center justify-between">
               <div>
                 <h3 className="font-playfair text-2xl text-[#2B2B2B]">Mi Historial de Citas</h3>
-                <p className="font-sans text-xs uppercase tracking-wider text-[#2B2B2B]/60">
+                <p className="font-inter text-xs uppercase tracking-wider text-[#2B2B2B]/60">
                   {savedPhone
                     ? `Clienta reconocida: ${savedPhone} (${savedName || "WhatsApp"})`
                     : "Acceso sin contraseñas con tu número de teléfono"}
@@ -1267,7 +1267,7 @@ export default function NailsPinkPalacePage() {
               {/* If no phone is recognized, or user wants to switch device */}
               {!savedPhone && otpStep !== "verified" ? (
                 <div className="bg-white p-6 rounded-2xl border border-[#2B2B2B]/10 space-y-4">
-                  <p className="font-sans text-sm text-[#2B2B2B]/80">
+                  <p className="font-inter text-sm text-[#2B2B2B]/80">
                     Ingresa tu número de teléfono para acceder a tu historial desde este dispositivo. Te enviaremos un código de verificación de un solo uso por WhatsApp.
                   </p>
 
@@ -1278,9 +1278,9 @@ export default function NailsPinkPalacePage() {
                         placeholder="Tu teléfono WhatsApp (ej. 88214532)"
                         value={otpPhoneInput}
                         onChange={(e) => setOtpPhoneInput(e.target.value)}
-                        className="w-full p-3.5 rounded-xl border border-[#2B2B2B]/20 font-sans text-sm"
+                        className="w-full p-3.5 rounded-xl border border-[#2B2B2B]/20 font-inter text-sm"
                       />
-                      {otpError && <p className="text-red-600 text-xs font-sans">{otpError}</p>}
+                      {otpError && <p className="text-red-600 text-xs font-inter">{otpError}</p>}
                       <button
                         type="button"
                         onClick={handleRequestOtp}
@@ -1291,7 +1291,7 @@ export default function NailsPinkPalacePage() {
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      <div className="p-3 bg-green-50 text-green-800 rounded-xl text-xs font-sans">
+                      <div className="p-3 bg-green-50 text-green-800 rounded-xl text-xs font-inter">
                         Código de prueba enviado a WhatsApp ({otpPhoneInput}): <strong>{generatedOtp}</strong>
                       </div>
                       <input
@@ -1299,9 +1299,9 @@ export default function NailsPinkPalacePage() {
                         placeholder="Ingresa el código de 4 dígitos"
                         value={enteredOtp}
                         onChange={(e) => setEnteredOtp(e.target.value)}
-                        className="w-full p-3.5 rounded-xl border border-[#2B2B2B]/20 font-sans text-sm"
+                        className="w-full p-3.5 rounded-xl border border-[#2B2B2B]/20 font-inter text-sm"
                       />
-                      {otpError && <p className="text-red-600 text-xs font-sans">{otpError}</p>}
+                      {otpError && <p className="text-red-600 text-xs font-inter">{otpError}</p>}
                       <div className="flex gap-2">
                         <button
                           type="button"
@@ -1363,7 +1363,7 @@ export default function NailsPinkPalacePage() {
                           <div className="flex items-start justify-between">
                             <div>
                               <p className="font-playfair text-lg font-bold text-[#2B2B2B]">{app.serviceName}</p>
-                              <p className="font-sans text-xs text-[#2B2B2B]/60">
+                              <p className="font-inter text-xs text-[#2B2B2B]/60">
                                 Fecha: {app.date} · {formatTime12h(app.time)} – {formatTime12h(app.endTime)}
                               </p>
                             </div>
@@ -1381,7 +1381,7 @@ export default function NailsPinkPalacePage() {
                             </span>
                           </div>
 
-                          <div className="flex items-center justify-between text-xs font-sans text-[#2B2B2B]/80 pt-2 border-t border-[#2B2B2B]/5">
+                          <div className="flex items-center justify-between text-xs font-inter text-[#2B2B2B]/80 pt-2 border-t border-[#2B2B2B]/5">
                             <span>
                               Precio: <strong>{formatCRC(app.priceCRC)}</strong> ({app.paymentMethod.toUpperCase()})
                             </span>
@@ -1416,7 +1416,7 @@ export default function NailsPinkPalacePage() {
             <div className="px-8 py-6 bg-[#2B2B2B] text-white flex items-center justify-between">
               <div>
                 <p className="font-playfair italic text-2xl text-[#E66C7D]">Nails Pink Palace</p>
-                <p className="font-sans text-xs uppercase tracking-[0.2em] text-white/60">
+                <p className="font-inter text-xs uppercase tracking-[0.2em] text-white/60">
                   Panel de Gestión para Valentina Cobaleda Pallares
                 </p>
               </div>
@@ -1434,19 +1434,19 @@ export default function NailsPinkPalacePage() {
               {/* Metrics */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="p-5 rounded-2xl bg-[#FAF6F1] border border-[#2B2B2B]/10">
-                  <p className="font-sans text-xs uppercase tracking-wider text-[#2B2B2B]/60">Total Citas</p>
+                  <p className="font-inter text-xs uppercase tracking-wider text-[#2B2B2B]/60">Total Citas</p>
                   <p className="font-playfair text-3xl font-bold text-[#2B2B2B] mt-1">{appointments.length}</p>
                 </div>
 
                 <div className="p-5 rounded-2xl bg-[#FAF6F1] border border-[#2B2B2B]/10">
-                  <p className="font-sans text-xs uppercase tracking-wider text-[#2B2B2B]/60">Confirmadas</p>
+                  <p className="font-inter text-xs uppercase tracking-wider text-[#2B2B2B]/60">Confirmadas</p>
                   <p className="font-playfair text-3xl font-bold text-[#E66C7D] mt-1">
                     {appointments.filter((a) => a.status === "confirmada").length}
                   </p>
                 </div>
 
                 <div className="p-5 rounded-2xl bg-[#FAF6F1] border border-[#2B2B2B]/10">
-                  <p className="font-sans text-xs uppercase tracking-wider text-[#2B2B2B]/60">Ingresos Est.</p>
+                  <p className="font-inter text-xs uppercase tracking-wider text-[#2B2B2B]/60">Ingresos Est.</p>
                   <p className="font-playfair text-2xl font-bold text-[#2B2B2B] mt-1">
                     {formatCRC(
                       appointments
@@ -1457,7 +1457,7 @@ export default function NailsPinkPalacePage() {
                 </div>
 
                 <div className="p-5 rounded-2xl bg-[#FAF6F1] border border-[#2B2B2B]/10">
-                  <p className="font-sans text-xs uppercase tracking-wider text-[#2B2B2B]/60">Clientas</p>
+                  <p className="font-inter text-xs uppercase tracking-wider text-[#2B2B2B]/60">Clientas</p>
                   <p className="font-playfair text-3xl font-bold text-[#2B2B2B] mt-1">
                     {new Set(appointments.map((a) => a.clientPhone)).size}
                   </p>
@@ -1466,7 +1466,7 @@ export default function NailsPinkPalacePage() {
 
               {/* Notification Integrations Configuration */}
               <div className="p-6 rounded-2xl bg-[#FAF6F1] border border-[#2B2B2B]/10 space-y-4">
-                <h4 className="font-sans text-sm uppercase tracking-wider font-bold text-[#2B2B2B]">
+                <h4 className="font-inter text-sm uppercase tracking-wider font-bold text-[#2B2B2B]">
                   Configuración de Notificaciones Automáticas
                 </h4>
                 <div className="grid sm:grid-cols-3 gap-4">
@@ -1529,7 +1529,7 @@ export default function NailsPinkPalacePage() {
               {/* Appointments Manager Table */}
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <h4 className="font-sans text-sm uppercase tracking-wider font-bold text-[#2B2B2B]">
+                  <h4 className="font-inter text-sm uppercase tracking-wider font-bold text-[#2B2B2B]">
                     Gestión de Citas
                   </h4>
 
