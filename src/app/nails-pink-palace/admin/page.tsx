@@ -3,6 +3,26 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
+  Search,
+  X,
+  Phone,
+  Mail,
+  FileText,
+  Clock,
+  Calendar,
+  Smartphone,
+  Banknote,
+  MessageCircle,
+  Trash2,
+  Pencil,
+  Star,
+  Plus,
+  ArrowLeft,
+  Settings,
+  Sparkles,
+  User,
+} from "lucide-react";
+import {
   NAIL_SERVICES,
   NailService,
   PaymentMethod,
@@ -476,7 +496,7 @@ export default function NailsPinkPalaceAdminPage() {
               href="/nails-pink-palace"
               className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-white/70 hover:text-white transition-colors bg-white/10 hover:bg-white/15 px-3 py-1.5 rounded-full"
             >
-              <span>←</span>
+              <ArrowLeft className="w-3.5 h-3.5" />
               <span>Sitio Público</span>
             </Link>
             <div className="hidden sm:block h-5 w-px bg-white/20" />
@@ -502,7 +522,7 @@ export default function NailsPinkPalaceAdminPage() {
                 onClick={openNewServiceModal}
                 className="px-4 py-2 rounded-full bg-[#E66C7D] text-white text-xs uppercase tracking-wider font-semibold hover:bg-[#d45668] transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1.5"
               >
-                <span className="text-sm font-bold">+</span>
+                <Plus className="w-3.5 h-3.5" />
                 <span>Nuevo Servicio</span>
               </button>
             ) : (
@@ -511,7 +531,7 @@ export default function NailsPinkPalaceAdminPage() {
                 onClick={() => setIsNewAppointmentOpen(true)}
                 className="px-4 py-2 rounded-full bg-[#E66C7D] text-white text-xs uppercase tracking-wider font-semibold hover:bg-[#d45668] transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1.5"
               >
-                <span className="text-sm font-bold">+</span>
+                <Plus className="w-3.5 h-3.5" />
                 <span>Nueva Cita</span>
               </button>
             )}
@@ -547,35 +567,38 @@ export default function NailsPinkPalaceAdminPage() {
             <button
               type="button"
               onClick={() => setActiveTab("citas")}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all ${
+              className={`px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all inline-flex items-center gap-1.5 ${
                 activeTab === "citas"
                   ? "bg-[#2B2B2B] text-white shadow-sm"
                   : "text-[#2B2B2B]/70 hover:text-[#2B2B2B] hover:bg-gray-100"
               }`}
             >
-              Citas ({appointments.length})
+              <Calendar className="w-3.5 h-3.5" />
+              <span>Citas ({appointments.length})</span>
             </button>
             <button
               type="button"
               onClick={() => setActiveTab("servicios")}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all ${
+              className={`px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all inline-flex items-center gap-1.5 ${
                 activeTab === "servicios"
                   ? "bg-[#2B2B2B] text-white shadow-sm"
                   : "text-[#2B2B2B]/70 hover:text-[#2B2B2B] hover:bg-gray-100"
               }`}
             >
-              Servicios ({services.length})
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Servicios ({services.length})</span>
             </button>
             <button
               type="button"
               onClick={() => setActiveTab("configuracion")}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all ${
+              className={`px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all inline-flex items-center gap-1.5 ${
                 activeTab === "configuracion"
                   ? "bg-[#2B2B2B] text-white shadow-sm"
                   : "text-[#2B2B2B]/70 hover:text-[#2B2B2B] hover:bg-gray-100"
               }`}
             >
-              Configuración
+              <Settings className="w-3.5 h-3.5" />
+              <span>Configuración</span>
             </button>
           </div>
         </div>
@@ -667,22 +690,20 @@ export default function NailsPinkPalaceAdminPage() {
                     placeholder="Buscar por clienta, tel, servicio..."
                     value={adminSearch}
                     onChange={(e) => setAdminSearch(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 rounded-xl border border-gray-200 text-xs focus:outline-none focus:border-[#E66C7D] transition-colors"
+                    className="w-full pl-9 pr-8 py-2 rounded-xl border border-gray-200 text-xs focus:outline-none focus:border-[#E66C7D] transition-colors"
                   />
-                  <span className="absolute left-3 top-2.5 text-gray-400 text-xs">
-                    🔍
-                  </span>
+                  <Search className="w-4 h-4 absolute left-3 top-2.5 text-gray-400" />
+                  {adminSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setAdminSearch("")}
+                      className="absolute right-2.5 top-2.5 p-1 text-gray-400 hover:text-gray-600"
+                      title="Limpiar búsqueda"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
-
-                {adminSearch && (
-                  <button
-                    type="button"
-                    onClick={() => setAdminSearch("")}
-                    className="text-xs text-gray-400 hover:text-gray-600"
-                  >
-                    ✕
-                  </button>
-                )}
               </div>
             </div>
 
@@ -723,17 +744,20 @@ export default function NailsPinkPalaceAdminPage() {
                             <div className="font-semibold text-[#2B2B2B] text-sm">
                               {app.clientName}
                             </div>
-                            <div className="text-[11px] text-[#2B2B2B]/70 mt-0.5">
-                              📞 {app.clientPhone}
+                            <div className="text-[11px] text-[#2B2B2B]/70 mt-0.5 flex items-center gap-1.5">
+                              <Phone className="w-3 h-3 text-[#2B2B2B]/60 shrink-0" />
+                              <span>{app.clientPhone}</span>
                             </div>
                             {app.clientEmail && (
-                              <div className="text-[10px] text-gray-400 mt-0.5">
-                                ✉ {app.clientEmail}
+                              <div className="text-[10px] text-gray-400 mt-0.5 flex items-center gap-1.5">
+                                <Mail className="w-3 h-3 text-gray-400 shrink-0" />
+                                <span>{app.clientEmail}</span>
                               </div>
                             )}
                             {app.notes && (
-                              <div className="mt-1 text-[11px] text-[#E66C7D] bg-[#E66C7D]/10 px-2 py-0.5 rounded-md inline-block max-w-xs break-words">
-                                📝 {app.notes}
+                              <div className="mt-1 text-[11px] text-[#E66C7D] bg-[#E66C7D]/10 px-2 py-0.5 rounded-md inline-flex items-center gap-1.5 max-w-xs break-words">
+                                <FileText className="w-3 h-3 shrink-0" />
+                                <span>{app.notes}</span>
                               </div>
                             )}
                           </td>
@@ -743,18 +767,21 @@ export default function NailsPinkPalaceAdminPage() {
                             <div className="font-medium text-[#2B2B2B]">
                               {app.serviceName}
                             </div>
-                            <div className="text-[11px] text-gray-400">
-                              ⏱ {app.durationMin} min
+                            <div className="text-[11px] text-gray-400 flex items-center gap-1 mt-0.5">
+                              <Clock className="w-3 h-3 shrink-0" />
+                              <span>{app.durationMin} min</span>
                             </div>
                           </td>
 
                           {/* Date & Time */}
                           <td className="p-4">
-                            <div className="font-medium text-[#2B2B2B]">
-                              📅 {app.date}
+                            <div className="font-medium text-[#2B2B2B] flex items-center gap-1.5">
+                              <Calendar className="w-3.5 h-3.5 text-[#E66C7D] shrink-0" />
+                              <span>{app.date}</span>
                             </div>
-                            <div className="text-[11px] text-gray-500 font-semibold mt-0.5">
-                              {formatTime12h(app.time)} – {formatTime12h(app.endTime)}
+                            <div className="text-[11px] text-gray-500 font-semibold mt-0.5 flex items-center gap-1.5">
+                              <Clock className="w-3 h-3 text-gray-400 shrink-0" />
+                              <span>{formatTime12h(app.time)} – {formatTime12h(app.endTime)}</span>
                             </div>
                           </td>
 
@@ -763,10 +790,18 @@ export default function NailsPinkPalaceAdminPage() {
                             <div className="font-bold text-[#E66C7D] text-sm">
                               {formatCRC(app.priceCRC)}
                             </div>
-                            <div className="text-[10px] uppercase font-bold tracking-wider text-gray-500 mt-0.5">
-                              {app.paymentMethod === "sinpe"
-                                ? "📱 SINPE Móvil"
-                                : "💵 Efectivo"}
+                            <div className="text-[10px] uppercase font-bold tracking-wider text-gray-500 mt-0.5 flex items-center gap-1">
+                              {app.paymentMethod === "sinpe" ? (
+                                <>
+                                  <Smartphone className="w-3 h-3 text-purple-600 shrink-0" />
+                                  <span>SINPE Móvil</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Banknote className="w-3 h-3 text-emerald-600 shrink-0" />
+                                  <span>Efectivo</span>
+                                </>
+                              )}
                             </div>
                           </td>
 
@@ -802,9 +837,9 @@ export default function NailsPinkPalaceAdminPage() {
                                 type="button"
                                 onClick={() => openRescheduleModal(app)}
                                 title="Reagendar fecha u hora de esta cita"
-                                className="px-2.5 py-1.5 rounded-lg bg-[#E66C7D]/10 text-[#E66C7D] hover:bg-[#E66C7D] hover:text-white transition-all font-semibold flex items-center gap-1 border border-[#E66C7D]/30"
+                                className="px-2.5 py-1.5 rounded-lg bg-[#E66C7D]/10 text-[#E66C7D] hover:bg-[#E66C7D] hover:text-white transition-all font-semibold flex items-center gap-1.5 border border-[#E66C7D]/30"
                               >
-                                <span>🗓️</span>
+                                <Calendar className="w-3.5 h-3.5" />
                                 <span>Reagendar</span>
                               </button>
 
@@ -829,9 +864,9 @@ export default function NailsPinkPalaceAdminPage() {
                                 type="button"
                                 onClick={() => sendWhatsAppReminder(app)}
                                 title="Enviar recordatorio por WhatsApp a la clienta"
-                                className="p-2 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 transition-colors border border-green-200"
+                                className="p-2 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 transition-colors border border-green-200 flex items-center justify-center"
                               >
-                                💬
+                                <MessageCircle className="w-3.5 h-3.5" />
                               </button>
 
                               {/* Google Calendar CTA */}
@@ -840,9 +875,9 @@ export default function NailsPinkPalaceAdminPage() {
                                 target="_blank"
                                 rel="noreferrer"
                                 title="Agregar a Google Calendar"
-                                className="p-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors border border-blue-200 inline-block"
+                                className="p-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors border border-blue-200 inline-flex items-center justify-center"
                               >
-                                📅
+                                <Calendar className="w-3.5 h-3.5" />
                               </a>
 
                               {/* Delete CTA */}
@@ -850,9 +885,9 @@ export default function NailsPinkPalaceAdminPage() {
                                 type="button"
                                 onClick={() => handleDeleteAppointment(app.id)}
                                 title="Eliminar cita"
-                                className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors border border-red-200"
+                                className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors border border-red-200 flex items-center justify-center"
                               >
-                                🗑
+                                <Trash2 className="w-3.5 h-3.5" />
                               </button>
                             </div>
                           </td>
@@ -921,17 +956,16 @@ export default function NailsPinkPalaceAdminPage() {
                     onChange={(e) => setServicesSearch(e.target.value)}
                     className="w-full pl-9 pr-3 py-2 rounded-xl border border-gray-200 text-xs focus:outline-none focus:border-[#E66C7D] transition-colors"
                   />
-                  <span className="absolute left-3 top-2.5 text-gray-400 text-xs">
-                    🔍
-                  </span>
+                  <Search className="w-4 h-4 absolute left-3 top-2.5 text-gray-400" />
                 </div>
 
                 <button
                   type="button"
                   onClick={openNewServiceModal}
-                  className="px-4 py-2 rounded-xl bg-[#E66C7D] text-white text-xs font-semibold hover:bg-[#d45668] transition-all whitespace-nowrap"
+                  className="px-4 py-2 rounded-xl bg-[#E66C7D] text-white text-xs font-semibold hover:bg-[#d45668] transition-all whitespace-nowrap flex items-center gap-1.5"
                 >
-                  + Agregar Servicio
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Agregar Servicio</span>
                 </button>
               </div>
             </div>
@@ -972,8 +1006,9 @@ export default function NailsPinkPalaceAdminPage() {
                         <h3 className="font-playfair text-lg font-bold text-[#2B2B2B]">
                           {service.name}
                         </h3>
-                        <span className="text-xs text-[#2B2B2B]/70 font-medium">
-                          ⏱ {service.durationMin} min
+                        <span className="text-xs text-[#2B2B2B]/70 font-medium flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-gray-400 shrink-0" />
+                          <span>{service.durationMin} min</span>
                         </span>
                       </div>
                       <p className="text-xs text-[#2B2B2B]/70 line-clamp-2">
@@ -987,17 +1022,18 @@ export default function NailsPinkPalaceAdminPage() {
                     <button
                       type="button"
                       onClick={() => openEditServiceModal(service)}
-                      className="flex-1 py-2 rounded-xl bg-gray-100 hover:bg-[#E66C7D] hover:text-white transition-colors text-xs font-semibold text-[#2B2B2B]"
+                      className="flex-1 py-2 rounded-xl bg-gray-100 hover:bg-[#E66C7D] hover:text-white transition-colors text-xs font-semibold text-[#2B2B2B] flex items-center justify-center gap-1.5"
                     >
-                      ✏️ Editar Servicio
+                      <Pencil className="w-3.5 h-3.5" />
+                      <span>Editar Servicio</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDeleteService(service.id)}
-                      className="px-3 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-colors text-xs font-semibold border border-red-200"
+                      className="px-3 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-colors text-xs font-semibold border border-red-200 flex items-center justify-center"
                       title="Eliminar servicio"
                     >
-                      🗑
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
@@ -1035,8 +1071,10 @@ export default function NailsPinkPalaceAdminPage() {
                 {/* WhatsApp */}
                 <div className="p-4 rounded-2xl border border-gray-200 bg-[#FAF6F1]/50 flex items-start justify-between gap-4">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-base">💬</span>
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-8 w-8 rounded-lg bg-green-100 text-green-700 flex items-center justify-center shrink-0">
+                        <MessageCircle className="w-4 h-4" />
+                      </div>
                       <strong className="text-sm text-[#2B2B2B]">
                         WhatsApp Business API
                       </strong>
@@ -1064,8 +1102,10 @@ export default function NailsPinkPalaceAdminPage() {
                 {/* Google Calendar */}
                 <div className="p-4 rounded-2xl border border-gray-200 bg-[#FAF6F1]/50 flex items-start justify-between gap-4">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-base">📅</span>
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-8 w-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+                        <Calendar className="w-4 h-4" />
+                      </div>
                       <strong className="text-sm text-[#2B2B2B]">
                         Google Calendar
                       </strong>
@@ -1093,8 +1133,10 @@ export default function NailsPinkPalaceAdminPage() {
                 {/* Email */}
                 <div className="p-4 rounded-2xl border border-gray-200 bg-[#FAF6F1]/50 flex items-start justify-between gap-4">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-base">✉️</span>
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-8 w-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
+                        <Mail className="w-4 h-4" />
+                      </div>
                       <strong className="text-sm text-[#2B2B2B]">
                         Correo Electrónico
                       </strong>
@@ -1178,8 +1220,11 @@ export default function NailsPinkPalaceAdminPage() {
                 <p className="font-playfair text-xl text-[#E66C7D] font-bold">
                   Reagendar Cita
                 </p>
-                <p className="text-[11px] text-white/60">
-                  Clienta: {rescheduleTarget.clientName} (📞 {rescheduleTarget.clientPhone})
+                <p className="text-[11px] text-white/60 flex items-center gap-1.5 mt-0.5">
+                  <span>Clienta: {rescheduleTarget.clientName}</span>
+                  <span>·</span>
+                  <Phone className="w-3 h-3 inline text-white/70" />
+                  <span>{rescheduleTarget.clientPhone}</span>
                 </p>
               </div>
               <button
@@ -1187,7 +1232,7 @@ export default function NailsPinkPalaceAdminPage() {
                 onClick={() => setRescheduleTarget(null)}
                 className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -1197,8 +1242,9 @@ export default function NailsPinkPalaceAdminPage() {
                 <span className="text-gray-500 font-semibold block uppercase tracking-wider text-[10px]">
                   Horario actual programado:
                 </span>
-                <p className="text-[#2B2B2B] font-bold">
-                  📅 {rescheduleTarget.date} · {formatTime12h(rescheduleTarget.time)} – {formatTime12h(rescheduleTarget.endTime)}
+                <p className="text-[#2B2B2B] font-bold flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-[#E66C7D] shrink-0" />
+                  <span>{rescheduleTarget.date} · {formatTime12h(rescheduleTarget.time)} – {formatTime12h(rescheduleTarget.endTime)}</span>
                 </p>
                 <p className="text-[#2B2B2B]/70">
                   Servicio: <strong>{rescheduleTarget.serviceName}</strong> ({formatCRC(rescheduleTarget.priceCRC)})
@@ -1296,7 +1342,7 @@ export default function NailsPinkPalaceAdminPage() {
                   onClick={() => sendWhatsAppRescheduleConfirmation(rescheduleTarget)}
                   className="w-full sm:w-auto px-4 py-2 rounded-xl bg-green-50 text-green-700 hover:bg-green-100 transition-colors border border-green-200 font-semibold flex items-center justify-center gap-1.5"
                 >
-                  <span>💬</span>
+                  <MessageCircle className="w-3.5 h-3.5" />
                   <span>Notificar por WhatsApp</span>
                 </button>
 
@@ -1340,7 +1386,7 @@ export default function NailsPinkPalaceAdminPage() {
                 onClick={() => setIsServiceModalOpen(false)}
                 className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -1387,8 +1433,9 @@ export default function NailsPinkPalaceAdminPage() {
                       onChange={(e) => setServiceFormPopular(e.target.checked)}
                       className="h-4 w-4 accent-[#E66C7D] rounded"
                     />
-                    <span className="font-semibold text-[#2B2B2B]">
-                      ⭐ Destacar como Favorito
+                    <span className="font-semibold text-[#2B2B2B] flex items-center gap-1.5">
+                      <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-400" />
+                      <span>Destacar como Favorito</span>
                     </span>
                   </label>
                 </div>
@@ -1557,7 +1604,7 @@ export default function NailsPinkPalaceAdminPage() {
                 onClick={() => setIsNewAppointmentOpen(false)}
                 className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -1663,7 +1710,10 @@ export default function NailsPinkPalaceAdminPage() {
                       onChange={() => setNewPaymentMethod("sinpe")}
                       className="accent-[#E66C7D]"
                     />
-                    <span>SINPE Móvil</span>
+                    <span className="flex items-center gap-1.5">
+                      <Smartphone className="w-3.5 h-3.5 text-purple-600" />
+                      <span>SINPE Móvil</span>
+                    </span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -1674,7 +1724,10 @@ export default function NailsPinkPalaceAdminPage() {
                       onChange={() => setNewPaymentMethod("efectivo")}
                       className="accent-[#E66C7D]"
                     />
-                    <span>Efectivo</span>
+                    <span className="flex items-center gap-1.5">
+                      <Banknote className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Efectivo</span>
+                    </span>
                   </label>
                 </div>
               </div>
