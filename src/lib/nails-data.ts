@@ -129,6 +129,8 @@ export interface NotificationSettings {
   email: boolean;
   valentinaPhone: string;
   valentinaEmail: string;
+  googleWebhookUrl?: string;
+  calendarAutoSync: boolean;
 }
 
 export const DEFAULT_NOTIFICATIONS: NotificationSettings = {
@@ -137,6 +139,8 @@ export const DEFAULT_NOTIFICATIONS: NotificationSettings = {
   email: true,
   valentinaPhone: "8735-7321",
   valentinaEmail: "vale.coba.vcp@gmail.com",
+  googleWebhookUrl: "",
+  calendarAutoSync: true,
 };
 
 export const BUSINESS_INFO = {
@@ -275,25 +279,122 @@ export function getAvailableSlots(
 }
 
 /**
- * Generate Google Calendar Link for client
+ * Formats a date (YYYY-MM-DD) and time (HH:mm) into Costa Rica ISO timezone (UTC-6)
  */
-export function createGoogleCalendarUrl(app: Appointment): string {
+export function formatCostaRicaIso(dateStr: string, timeStr: string): string {
+  return `${dateStr}T${timeStr}:00-06:00`;
+}
+
+/**
+ * Generate Google Calendar Link for client / Valentina with attendee invitation
+ */
+export function createGoogleCalendarUrl(app: Appointment, inviteValentina: boolean = true): string {
   const dateCompact = app.date.replace(/-/g, "");
   const [startH, startM] = app.time.split(":");
   const [endH, endM] = app.endTime.split(":");
   const startIso = `${dateCompact}T${startH}${startM}00`;
   const endIso = `${dateCompact}T${endH}${endM}00`;
 
-  const title = encodeURIComponent(`Cita Nails Pink Palace: ${app.serviceName}`);
+  const title = encodeURIComponent(`💅 Cita Nails Pink Palace: ${app.serviceName} - ${app.clientName}`);
   const details = encodeURIComponent(
-    `Servicio: ${app.serviceName}\nEstilista: Valentina Cobaleda Pallares\nPrecio: ${formatCRC(app.priceCRC)}\nMétodo de pago: ${
+    `💅 SERVICIO: ${app.serviceName}\n👤 CLIENTA: ${app.clientName}\n📞 WHATSAPP: ${app.clientPhone}${
+      app.clientEmail ? `\n✉️ CORREO: ${app.clientEmail}` : ""
+    }\n💰 MONTO: ${formatCRC(app.priceCRC)} (${
       app.paymentMethod === "sinpe" ? "SINPE Móvil (8735-7321)" : "Efectivo"
-    }\nUbicación: https://maps.app.goo.gl/BqSg3E39qPKYh9vS6?g_st=ic`
+    })\n⏱️ DURACIÓN: ${app.durationMin} min${app.notes ? `\n📝 NOTAS: ${app.notes}` : ""}\n\n📍 UBICACIÓN: Nails Pink Palace, Costa Rica\n🔗 GOOGLE MAPS: https://maps.app.goo.gl/endvYHJ5dbaiz6hV6\n👩‍🎨 ESTILISTA: Valentina Cobaleda Pallares`
   );
   const location = encodeURIComponent("Nails Pink Palace, Costa Rica");
+  const addParam = inviteValentina ? `&add=${encodeURIComponent(BUSINESS_INFO.email)}` : "";
 
-  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startIso}/${endIso}&details=${details}&location=${location}`;
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startIso}/${endIso}&details=${details}&location=${location}${addParam}`;
 }
+
+export const GOOGLE_APPS_SCRIPT_TEMPLATE = `/**
+ * Nails Pink Palace - Conexión Automática a Google Calendar
+ * Propietaria: Valentina Cobaleda Pallares (vale.coba.vcp@gmail.com)
+ *
+ * Instrucciones:
+ * 1. Abre https://script.google.com con la cuenta vale.coba.vcp@gmail.com
+ * 2. Haz clic en "Nuevo proyecto", borra todo y pega este código completo.
+ * 3. Haz clic en "Implementar" -> "Nueva implementación".
+ * 4. Tipo: "Aplicación web".
+ * 5. Ejecutar como: "Yo (vale.coba.vcp@gmail.com)".
+ * 6. Quién tiene acceso: "Cualquier persona" (Anyone).
+ * 7. Autoriza los permisos de Google Calendar y copia la URL webapp generada.
+ * 8. Pégala en el panel de administración de Nails Pink Palace. ¡Las citas se crearán solitas!
+ */
+
+function doPost(e) {
+  try {
+    var raw = e.postData.contents;
+    var data = JSON.parse(raw);
+
+    // Test de conectividad
+    if (data.action === "test") {
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success",
+        message: "Conexión exitosa con Google Calendar de vale.coba.vcp@gmail.com",
+        timestamp: new Date().toISOString()
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Obtener el calendario de Valentina
+    var calendar = CalendarApp.getCalendarById("vale.coba.vcp@gmail.com") || CalendarApp.getDefaultCalendar();
+
+    var title = "💅 " + (data.serviceName || "Cita Uñas") + " - " + (data.clientName || "Clienta");
+    var startTime = new Date(data.startTimeIso);
+    var endTime = new Date(data.endTimeIso);
+
+    var description = 
+      "💅 SERVICIO: " + (data.serviceName || "No especificado") + "\\n" +
+      "👤 CLIENTA: " + (data.clientName || "No especificado") + "\\n" +
+      "📞 WHATSAPP: " + (data.clientPhone || "No especificado") + "\\n" +
+      (data.clientEmail ? "✉️ CORREO: " + data.clientEmail + "\\n" : "") +
+      "💰 MONTO: ₡" + (data.priceCRC || "") + " (" + (data.paymentMethod === "sinpe" ? "SINPE Móvil: 8735-7321" : "Efectivo") + ")\\n" +
+      "⏱️ DURACIÓN: " + (data.durationMin || "") + " min\\n" +
+      (data.notes ? "📝 NOTAS: " + data.notes + "\\n" : "") +
+      "\\n📍 UBICACIÓN: Nails Pink Palace, Costa Rica\\n" +
+      "🔗 MAPS: https://maps.app.goo.gl/endvYHJ5dbaiz6hV6";
+
+    var options = {
+      description: description,
+      location: "Nails Pink Palace, Costa Rica"
+    };
+
+    if (data.clientEmail && data.clientEmail.indexOf("@") !== -1) {
+      options.guests = data.clientEmail;
+      options.sendInvites = true;
+    }
+
+    var event = calendar.createEvent(title, startTime, endTime, options);
+
+    try {
+      if (CalendarApp.EventColor && CalendarApp.EventColor.MAUVE) {
+        event.setColor(CalendarApp.EventColor.MAUVE);
+      }
+    } catch(err) {}
+
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "success",
+      eventId: event.getId(),
+      message: "Cita creada automáticamente en el calendario de vale.coba.vcp@gmail.com"
+    })).setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error",
+      message: err.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  return ContentService.createTextOutput(JSON.stringify({
+    status: "ok",
+    email: "vale.coba.vcp@gmail.com",
+    service: "Nails Pink Palace Google Calendar Automation"
+  })).setMimeType(ContentService.MimeType.JSON);
+}`;
 
 /**
  * Generate WhatsApp message URL for client or Valentina
