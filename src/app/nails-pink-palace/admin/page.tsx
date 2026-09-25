@@ -17,6 +17,9 @@ import {
   getAvailableSlots,
   createGoogleCalendarUrl,
   createWhatsAppMessageUrl,
+  createClientWhatsAppUrl,
+  createClientEmailUrl,
+  isValidPhoneNumber,
   INITIAL_SAMPLE_APPOINTMENTS,
   GOOGLE_APPS_SCRIPT_TEMPLATE,
 } from "@/lib/nails-data";

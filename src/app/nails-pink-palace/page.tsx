@@ -15,6 +15,10 @@ import {
   getAvailableSlots,
   createGoogleCalendarUrl,
   createWhatsAppMessageUrl,
+  createClientWhatsAppUrl,
+  createClientEmailUrl,
+  formatAppointmentConfirmationMessage,
+  isValidPhoneNumber,
   INITIAL_SAMPLE_APPOINTMENTS,
 } from "@/lib/nails-data";
 import {
@@ -31,6 +35,11 @@ import {
   ArrowRight,
   ArrowUpRight,
   Star,
+  Mail,
+  Copy,
+  CheckCircle2,
+  AlertCircle,
+  Send,
 } from "lucide-react";
 
 export default function NailsPinkPalacePage() {
@@ -64,6 +73,12 @@ export default function NailsPinkPalacePage() {
   const [clientEmail, setClientEmail] = useState<string>("");
   const [clientNotes, setClientNotes] = useState<string>("");
   const [confirmedAppointment, setConfirmedAppointment] = useState<Appointment | null>(null);
+
+  // Validation & confirmation dispatch state
+  const [phoneError, setPhoneError] = useState<string>("");
+  const [copiedVoucher, setCopiedVoucher] = useState<boolean>(false);
+  const [successEmailInput, setSuccessEmailInput] = useState<string>("");
+  const [emailNotice, setEmailNotice] = useState<string>("");
 
   // Filter category in services section
   const [activeCategory, setActiveCategory] = useState<string>("todos");
@@ -280,13 +295,59 @@ export default function NailsPinkPalacePage() {
     }
   };
 
+  // Copy full voucher to clipboard
+  const handleCopyVoucher = (app: Appointment) => {
+    const text = formatAppointmentConfirmationMessage(app);
+    if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(text);
+      setCopiedVoucher(true);
+      setTimeout(() => setCopiedVoucher(false), 3000);
+    }
+  };
+
+  // Send confirmation email to client
+  const handleSendEmailToClient = (targetEmail: string, app: Appointment) => {
+    const email = targetEmail.trim();
+    if (!email || !email.includes("@")) {
+      alert("Por favor ingresa un correo electrónico válido.");
+      return;
+    }
+    const updatedApp = { ...app, clientEmail: email };
+    const mailto = createClientEmailUrl(updatedApp);
+    window.open(mailto, "_blank");
+    setEmailNotice(`✓ Se abrió tu cliente de correo para enviar la confirmación a ${email}`);
+    setTimeout(() => setEmailNotice(""), 6000);
+
+    // Call API route
+    fetch("/api/send-confirmation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ appointment: updatedApp, channel: "email" }),
+    }).catch(() => {});
+  };
+
   // Confirm booking
   const handleConfirmBooking = () => {
-    if (!clientName.trim() || !clientPhone.trim() || !selectedDate || !selectedTime) {
-      alert("Por favor completa todos los datos obligatorios.");
+    if (!clientName.trim()) {
+      alert("Por favor ingresa tu nombre completo.");
+      setWizardStep(4);
       return;
     }
 
+    if (!clientPhone.trim() || !isValidPhoneNumber(clientPhone.trim())) {
+      setPhoneError("El número de WhatsApp o teléfono es estrictamente obligatorio (mínimo 8 dígitos).");
+      alert("El WhatsApp o número de teléfono es obligatorio para agendar tu cita y enviarte el comprobante.");
+      setWizardStep(4);
+      return;
+    }
+
+    if (!selectedDate || !selectedTime) {
+      alert("Por favor selecciona una fecha y horario para tu cita.");
+      setWizardStep(2);
+      return;
+    }
+
+    setPhoneError("");
     const endTime = addMinutesToTime(selectedTime, selectedService.durationMin);
     const newAppointmentId = `NPP-${Date.now().toString().slice(-6)}`;
 
@@ -307,9 +368,9 @@ export default function NailsPinkPalacePage() {
       notes: clientNotes.trim() || undefined,
       createdAt: new Date().toISOString(),
       notificationsSent: {
-        whatsapp: notificationSettings.whatsapp,
-        calendar: notificationSettings.calendar,
-        email: notificationSettings.email,
+        whatsapp: true,
+        calendar: true,
+        email: Boolean(clientEmail.trim()),
       },
     };
 
@@ -331,8 +392,16 @@ export default function NailsPinkPalacePage() {
     setSavedEmail(clientEmail.trim());
 
     setConfirmedAppointment(newAppointment);
+    setSuccessEmailInput(clientEmail.trim());
     setWizardStep(6); // Step 6 = Success Screen
     syncToValentinaCalendar(newAppointment);
+
+    // Asynchronously notify backend confirmation endpoint
+    fetch("/api/send-confirmation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ appointment: newAppointment, channel: "both" }),
+    }).catch(() => {});
   };
 
   // Cancel an appointment
@@ -1232,7 +1301,7 @@ export default function NailsPinkPalacePage() {
                   <div>
                     <h3 className="font-playfair text-2xl text-[#2B2B2B]">Tus Datos de Contacto</h3>
                     <p className="font-inter text-sm text-[#2B2B2B]/70">
-                      Sin contraseñas. Tu teléfono WhatsApp sirve para identificarte y enviarte la confirmación.
+                      Sin contraseñas. El número de WhatsApp o teléfono es obligatorio para confirmar tu cita y enviarte el comprobante.
                     </p>
                   </div>
 
@@ -1252,26 +1321,48 @@ export default function NailsPinkPalacePage() {
                     </div>
 
                     <div>
-                      <label className="block font-inter text-xs uppercase tracking-wider font-bold text-[#2B2B2B] mb-1.5">
-                        Teléfono (WhatsApp) *
-                      </label>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="block font-inter text-xs uppercase tracking-wider font-bold text-[#2B2B2B]">
+                          Teléfono / WhatsApp *
+                        </label>
+                        <span className="px-2 py-0.5 rounded-full bg-rose-100 text-[#E66C7D] text-[10px] font-extrabold uppercase tracking-wider border border-[#E66C7D]/30">
+                          Obligatorio
+                        </span>
+                      </div>
                       <input
                         type="tel"
                         required
                         placeholder="Ej. 88214532"
                         value={clientPhone}
-                        onChange={(e) => setClientPhone(e.target.value)}
-                        className="w-full p-3.5 rounded-xl border border-[#2B2B2B]/20 bg-white text-[#2B2B2B] font-inter text-sm focus:border-[#E66C7D] focus:outline-none"
+                        onChange={(e) => {
+                          setClientPhone(e.target.value);
+                          if (phoneError) setPhoneError("");
+                        }}
+                        className={`w-full p-3.5 rounded-xl border ${
+                          phoneError ? "border-red-500 ring-2 ring-red-200" : "border-[#2B2B2B]/20"
+                        } bg-white text-[#2B2B2B] font-inter text-sm focus:border-[#E66C7D] focus:outline-none`}
                       />
-                      <p className="font-inter text-[11px] text-[#2B2B2B]/50 mt-1">
-                        Se guardará en este dispositivo para que en tus próximas visitas reconozca tu historial.
-                      </p>
+                      {phoneError ? (
+                        <p className="font-inter text-xs text-red-600 font-semibold mt-1.5 flex items-center gap-1.5">
+                          <AlertCircle className="w-4 h-4 shrink-0" />
+                          <span>{phoneError}</span>
+                        </p>
+                      ) : (
+                        <p className="font-inter text-[11px] text-[#2B2B2B]/70 mt-1">
+                          ⚠️ <strong>El WhatsApp o teléfono es obligatorio:</strong> es indispensable para enviarte el comprobante con todos los datos y acceder a tu historial.
+                        </p>
+                      )}
                     </div>
 
                     <div>
-                      <label className="block font-inter text-xs uppercase tracking-wider font-bold text-[#2B2B2B] mb-1.5">
-                        Correo Electrónico (Opcional)
-                      </label>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="block font-inter text-xs uppercase tracking-wider font-bold text-[#2B2B2B]">
+                          Correo Electrónico (para enviarte la cita por correo)
+                        </label>
+                        <span className="text-[10px] text-[#2B2B2B]/50 uppercase tracking-wider font-medium">
+                          Opcional
+                        </span>
+                      </div>
                       <input
                         type="email"
                         placeholder="Ej. tu@correo.com"
@@ -1279,6 +1370,9 @@ export default function NailsPinkPalacePage() {
                         onChange={(e) => setClientEmail(e.target.value)}
                         className="w-full p-3.5 rounded-xl border border-[#2B2B2B]/20 bg-white text-[#2B2B2B] font-inter text-sm focus:border-[#E66C7D] focus:outline-none"
                       />
+                      <p className="font-inter text-[11px] text-[#2B2B2B]/50 mt-1">
+                        Si proporcionas tu correo, te enviaremos el comprobante tanto por WhatsApp como por correo electrónico.
+                      </p>
                     </div>
 
                     <div>
@@ -1303,7 +1397,7 @@ export default function NailsPinkPalacePage() {
                   <div>
                     <h3 className="font-playfair text-2xl text-[#2B2B2B]">Resumen de tu Cita</h3>
                     <p className="font-inter text-sm text-[#2B2B2B]/70">
-                      Revisa los detalles antes de confirmar. Al presionar confirmar, se notificará a Valentina.
+                      Revisa los detalles antes de confirmar. Al presionar confirmar, se agendará para el Google Calendar de Valentina y podrás enviarte el comprobante de inmediato.
                     </p>
                   </div>
 
@@ -1342,8 +1436,28 @@ export default function NailsPinkPalacePage() {
                       </div>
 
                       <div>
-                        <span className="text-[#2B2B2B]/60 uppercase tracking-wider block">WhatsApp</span>
-                        <strong className="text-sm text-[#2B2B2B]">{clientPhone}</strong>
+                        <span className="text-[#2B2B2B]/60 uppercase tracking-wider block">WhatsApp / Teléfono</span>
+                        <div className="flex items-center gap-1.5">
+                          <strong className="text-sm text-[#2B2B2B]">{clientPhone}</strong>
+                          <span className="text-[9px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200 uppercase">
+                            Obligatorio
+                          </span>
+                        </div>
+                      </div>
+
+                      {clientEmail && (
+                        <div className="col-span-2">
+                          <span className="text-[#2B2B2B]/60 uppercase tracking-wider block">Correo Electrónico</span>
+                          <strong className="text-sm text-[#2B2B2B]">{clientEmail}</strong>
+                        </div>
+                      )}
+
+                      <div className="col-span-2">
+                        <span className="text-[#2B2B2B]/60 uppercase tracking-wider block">Google Calendar</span>
+                        <div className="flex items-center gap-1.5 mt-0.5 text-blue-700 font-medium">
+                          <Calendar className="w-3.5 h-3.5" />
+                          <span>Sincronización oficial con {BUSINESS_INFO.email}</span>
+                        </div>
                       </div>
                     </div>
 
@@ -1362,19 +1476,19 @@ export default function NailsPinkPalacePage() {
               {/* STEP 6: PANTALLA DE ÉXITO */}
               {wizardStep === 6 && confirmedAppointment && (
                 <div className="text-center space-y-6 py-4">
-                  <div className="h-16 w-16 mx-auto rounded-full bg-green-100 text-green-600 flex items-center justify-center">
+                  <div className="h-16 w-16 mx-auto rounded-full bg-green-100 text-green-600 flex items-center justify-center shadow-sm">
                     <Check className="w-8 h-8" />
                   </div>
 
                   <div>
                     <h3 className="font-playfair text-3xl text-[#2B2B2B]">¡Cita Agendada con Éxito!</h3>
                     <p className="font-inter text-sm text-[#2B2B2B]/70 max-w-md mx-auto mt-2">
-                      Tu cita ha quedado registrada en el sistema de Nails Pink Palace. Valentina ya ha sido notificada.
+                      Tu cita ha quedado registrada en Nails Pink Palace. Valentina ya tiene el registro.
                     </p>
                   </div>
 
-                  {/* Google Calendar Automatic Sync Card */}
-                  <div className="bg-gradient-to-r from-blue-50/90 via-sky-50/80 to-blue-50/90 border border-blue-200/90 rounded-2xl p-4 text-left max-w-lg mx-auto shadow-sm">
+                  {/* Google Calendar Oficial Card (vale.coba.vcp@gmail.com) */}
+                  <div className="bg-gradient-to-r from-blue-50 via-sky-50 to-blue-50 border border-blue-200 rounded-2xl p-4 text-left max-w-lg mx-auto shadow-sm">
                     <div className="flex items-start gap-3">
                       <div className="p-2.5 rounded-xl bg-blue-600 text-white shrink-0 mt-0.5 shadow-sm">
                         <Calendar className="w-5 h-5" />
@@ -1382,50 +1496,141 @@ export default function NailsPinkPalacePage() {
                       <div className="space-y-1.5 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-semibold text-xs text-blue-950 uppercase tracking-wide">
-                            Google Calendar de Valentina
+                            Google Calendar Oficial
                           </span>
-                          <span className="text-[11px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-medium border border-blue-200/70">
+                          <span className="text-[11px] bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full font-bold border border-blue-200">
                             {BUSINESS_INFO.email}
                           </span>
                         </div>
                         <p className="text-xs text-blue-900 leading-relaxed">
                           {calendarSyncFeedback.message ||
-                            `Cita sincronizada automáticamente en la cuenta de Google Calendar de Valentina (${BUSINESS_INFO.email}).`}
+                            `Cita registrada para sincronización con el Google Calendar oficial (${BUSINESS_INFO.email}).`}
                         </p>
+                        <div className="pt-2">
+                          <a
+                            href={createGoogleCalendarUrl(confirmedAppointment, true)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-colors shadow-sm"
+                          >
+                            <Calendar className="w-4 h-4" />
+                            <span>Guardar / Ver en Google Calendar ({BUSINESS_INFO.email})</span>
+                          </a>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Notification dispatch badges */}
-                  <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-700 text-[11px] font-semibold border border-green-200">
-                      <Check className="w-3.5 h-3.5 text-green-600 shrink-0" />
-                      <span>WhatsApp Disparado</span>
-                    </span>
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-[11px] font-semibold border border-blue-200">
-                      <Check className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                      <span>Google Calendar ({BUSINESS_INFO.email})</span>
-                    </span>
-                    {confirmedAppointment.clientEmail && (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-[11px] font-semibold border border-purple-200">
-                        <Check className="w-3.5 h-3.5 text-purple-600 shrink-0" />
-                        <span>Correo Enviado</span>
+                  {/* Dedicated Voucher Dispatch to the Person Who Booked */}
+                  <div className="bg-gradient-to-r from-emerald-50/90 via-teal-50/80 to-emerald-50/90 border border-emerald-200/90 rounded-2xl p-5 text-left max-w-lg mx-auto shadow-sm space-y-3">
+                    <div className="flex items-center justify-between border-b border-emerald-200/60 pb-2.5">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 rounded-lg bg-emerald-600 text-white">
+                          <Send className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="font-playfair text-base font-bold text-emerald-950">
+                            Enviar comprobante a la persona que agendó
+                          </p>
+                          <p className="font-inter text-[11px] text-emerald-800">
+                            Para {confirmedAppointment.clientName} (Tel: {confirmedAppointment.clientPhone})
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold border border-emerald-200">
+                        Listo
                       </span>
-                    )}
+                    </div>
+
+                    <p className="font-inter text-xs text-emerald-900">
+                      El comprobante incluye tu servicio, fecha, horario, monto a pagar, indicaciones de pago y enlace a Google Calendar.
+                    </p>
+
+                    <div className="space-y-2 pt-1">
+                      {/* Enviar a mi WhatsApp */}
+                      <a
+                        href={createClientWhatsAppUrl(confirmedAppointment)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-full px-4 py-3 rounded-xl bg-green-600 text-white font-inter text-xs font-bold uppercase tracking-wider hover:bg-green-700 transition-all shadow flex items-center justify-between"
+                      >
+                        <span className="flex items-center gap-2">
+                          <MessageCircle className="w-4 h-4" />
+                          <span>Enviar cita a mi WhatsApp ({confirmedAppointment.clientPhone})</span>
+                        </span>
+                        <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-medium">
+                          Abrir WhatsApp →
+                        </span>
+                      </a>
+
+                      {/* Enviar a mi Correo */}
+                      {confirmedAppointment.clientEmail ? (
+                        <button
+                          type="button"
+                          onClick={() => handleSendEmailToClient(confirmedAppointment.clientEmail || "", confirmedAppointment)}
+                          className="w-full px-4 py-3 rounded-xl bg-purple-600 text-white font-inter text-xs font-bold uppercase tracking-wider hover:bg-purple-700 transition-all shadow flex items-center justify-between"
+                        >
+                          <span className="flex items-center gap-2">
+                            <Mail className="w-4 h-4" />
+                            <span>Enviar cita a mi Correo ({confirmedAppointment.clientEmail})</span>
+                          </span>
+                          <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-medium">
+                            Abrir Correo →
+                          </span>
+                        </button>
+                      ) : (
+                        <div className="p-3 bg-white/80 rounded-xl border border-emerald-200/80 space-y-2">
+                          <label className="block text-[11px] font-semibold text-emerald-950">
+                            ¿Deseas recibirlo también por Correo Electrónico?
+                          </label>
+                          <div className="flex gap-2">
+                            <input
+                              type="email"
+                              placeholder="Escribe tu correo..."
+                              value={successEmailInput}
+                              onChange={(e) => setSuccessEmailInput(e.target.value)}
+                              className="flex-1 p-2 rounded-lg border border-emerald-300 text-xs text-[#2B2B2B] bg-white focus:outline-none focus:border-purple-600"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleSendEmailToClient(successEmailInput, confirmedAppointment)}
+                              className="px-4 py-2 rounded-lg bg-purple-600 text-white text-xs font-bold hover:bg-purple-700 transition-colors shrink-0"
+                            >
+                              Enviar
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {emailNotice && (
+                        <p className="text-[11px] text-purple-700 font-semibold bg-purple-50 p-2 rounded-lg border border-purple-200">
+                          {emailNotice}
+                        </p>
+                      )}
+
+                      {/* Copiar comprobante */}
+                      <button
+                        type="button"
+                        onClick={() => handleCopyVoucher(confirmedAppointment)}
+                        className="w-full px-4 py-2.5 rounded-xl border border-emerald-300 bg-white text-emerald-950 font-inter text-xs font-semibold hover:bg-emerald-50 transition-colors flex items-center justify-center gap-2"
+                      >
+                        {copiedVoucher ? (
+                          <>
+                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                            <span className="text-emerald-700 font-bold">¡Comprobante copiado al portapapeles!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-4 h-4 text-emerald-700" />
+                            <span>Copiar texto completo del comprobante</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 pt-4">
-                    <a
-                      href={createGoogleCalendarUrl(confirmedAppointment)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="w-full sm:w-auto px-6 py-3 rounded-full border border-[#2B2B2B]/20 text-[#2B2B2B] font-inter text-xs uppercase tracking-wider font-semibold hover:border-[#2B2B2B] transition-colors inline-flex items-center justify-center gap-2"
-                    >
-                      <Calendar className="w-4 h-4 text-blue-600" />
-                      <span>Agregar a mi Google Calendar</span>
-                    </a>
-
+                  {/* Actions secundarias */}
+                  <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 pt-2">
                     <a
                       href={createWhatsAppMessageUrl(
                         BUSINESS_INFO.phone,
@@ -1433,24 +1638,24 @@ export default function NailsPinkPalacePage() {
                       )}
                       target="_blank"
                       rel="noreferrer"
-                      className="w-full sm:w-auto px-6 py-3 rounded-full bg-[#E66C7D] text-white font-inter text-xs uppercase tracking-wider font-semibold hover:bg-[#d45668] transition-colors inline-flex items-center justify-center gap-2"
+                      className="w-full sm:w-auto px-5 py-2.5 rounded-full border border-[#E66C7D]/30 text-[#E66C7D] font-inter text-xs uppercase tracking-wider font-semibold hover:bg-[#E66C7D] hover:text-white transition-colors inline-flex items-center justify-center gap-2"
                     >
                       <MessageCircle className="w-4 h-4" />
-                      <span>Escribir a Valentina por WhatsApp</span>
+                      <span>Escribir directamente a Valentina ({BUSINESS_INFO.phone})</span>
                     </a>
 
                     <a
                       href={BUSINESS_INFO.locationUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="w-full sm:w-auto px-6 py-3 rounded-full border border-[#E66C7D]/40 text-[#E66C7D] font-inter text-xs uppercase tracking-wider font-semibold hover:bg-[#E66C7D] hover:text-white transition-colors inline-flex items-center justify-center gap-2"
+                      className="w-full sm:w-auto px-5 py-2.5 rounded-full border border-[#2B2B2B]/20 text-[#2B2B2B] font-inter text-xs uppercase tracking-wider font-semibold hover:border-[#2B2B2B] transition-colors inline-flex items-center justify-center gap-2"
                     >
                       <MapPin className="w-4 h-4" />
                       <span>Ver en Google Maps</span>
                     </a>
                   </div>
 
-                  <div className="pt-4">
+                  <div className="pt-2">
                     <button
                       type="button"
                       onClick={() => {
@@ -1489,9 +1694,17 @@ export default function NailsPinkPalacePage() {
                         alert("Por favor selecciona un horario disponible.");
                         return;
                       }
-                      if (wizardStep === 4 && (!clientName.trim() || !clientPhone.trim())) {
-                        alert("Por favor ingresa tu nombre y teléfono.");
-                        return;
+                      if (wizardStep === 4) {
+                        if (!clientName.trim()) {
+                          alert("Por favor ingresa tu nombre completo.");
+                          return;
+                        }
+                        if (!clientPhone.trim() || !isValidPhoneNumber(clientPhone.trim())) {
+                          setPhoneError("El número de WhatsApp o teléfono es estrictamente obligatorio (mínimo 8 dígitos).");
+                          alert("El WhatsApp o número de teléfono es obligatorio para poder agendar tu cita y enviarte el comprobante.");
+                          return;
+                        }
+                        setPhoneError("");
                       }
                       setWizardStep(wizardStep + 1);
                     }}

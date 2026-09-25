@@ -406,6 +406,59 @@ export function createWhatsAppMessageUrl(phone: string, text: string): string {
 }
 
 /**
+ * Validates Costa Rica / international phone numbers (must contain at least 8 digits)
+ */
+export function isValidPhoneNumber(phone: string): boolean {
+  if (!phone) return false;
+  const digitsOnly = phone.replace(/\D/g, "");
+  return digitsOnly.length >= 8;
+}
+
+/**
+ * Full message formatted for sending to the client who booked
+ */
+export function formatAppointmentConfirmationMessage(app: Appointment): string {
+  const gcalUrl = createGoogleCalendarUrl(app, true);
+  return `💅 *¡CITA CONFIRMADA EN NAILS PINK PALACE!* 💅
+
+Hola *${app.clientName}*, tu cita ha sido registrada con éxito:
+
+✨ *Servicio:* ${app.serviceName}
+📅 *Fecha:* ${app.date}
+⏰ *Hora:* ${formatTime12h(app.time)} a ${formatTime12h(app.endTime)} (${app.durationMin} min)
+💰 *Monto:* ${formatCRC(app.priceCRC)}
+💳 *Método de pago:* ${app.paymentMethod === "sinpe" ? "SINPE Móvil (8735-7321 - Valentina Cobaleda)" : "Efectivo al finalizar"}
+${app.notes ? `📝 *Notas:* ${app.notes}\n` : ""}
+📍 *Ubicación:* Nails Pink Palace, Costa Rica
+🗺️ *Google Maps:* https://maps.app.goo.gl/endvYHJ5dbaiz6hV6
+
+📅 *Google Calendar:* Sincronizada con ${BUSINESS_INFO.email}
+🔗 *Ver/Añadir a Google Calendar:* ${gcalUrl}
+
+👩‍🎨 *Estilista:* Valentina Cobaleda Pallares
+📞 *Contacto / WhatsApp:* ${BUSINESS_INFO.phone}
+
+¡Te esperamos con mucho gusto para consentirte! 💖`;
+}
+
+/**
+ * WhatsApp URL directed to the person who booked
+ */
+export function createClientWhatsAppUrl(app: Appointment): string {
+  const message = formatAppointmentConfirmationMessage(app);
+  return createWhatsAppMessageUrl(app.clientPhone, message);
+}
+
+/**
+ * Email mailto URL directed to the person who booked
+ */
+export function createClientEmailUrl(app: Appointment): string {
+  const subject = `Confirmación de Cita - Nails Pink Palace (${app.serviceName})`;
+  const body = formatAppointmentConfirmationMessage(app);
+  return `mailto:${encodeURIComponent(app.clientEmail || "")}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+/**
  * Initial sample appointments
  */
 export const INITIAL_SAMPLE_APPOINTMENTS: Appointment[] = [
