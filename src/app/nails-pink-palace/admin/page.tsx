@@ -18,6 +18,7 @@ import {
   createGoogleCalendarUrl,
   createWhatsAppMessageUrl,
   INITIAL_SAMPLE_APPOINTMENTS,
+  GOOGLE_APPS_SCRIPT_TEMPLATE,
 } from "@/lib/nails-data";
 import {
   Search,
@@ -35,6 +36,13 @@ import {
   X,
   Plus,
   ArrowUpRight,
+  Check,
+  Copy,
+  ExternalLink,
+  RefreshCw,
+  AlertCircle,
+  CheckCircle2,
+  Sparkles,
 } from "lucide-react";
 
 const IMAGE_PRESETS = [
@@ -130,6 +138,14 @@ export default function NailsPinkPalaceAdminPage() {
     return `${y}-${m}-${d}`;
   }, []);
 
+  // Google Calendar Integration State (Target: vale.coba.vcp@gmail.com)
+  const [webhookInput, setWebhookInput] = useState<string>("");
+  const [testWebhookStatus, setTestWebhookStatus] = useState<"idle" | "testing" | "success" | "error">("idle");
+  const [testWebhookMessage, setTestWebhookMessage] = useState<string>("");
+  const [copiedScript, setCopiedScript] = useState<boolean>(false);
+  const [syncingAppointmentId, setSyncingAppointmentId] = useState<string | null>(null);
+  const [showScriptModal, setShowScriptModal] = useState<boolean>(false);
+
   // Hydrate from localStorage
   useEffect(() => {
     try {
@@ -158,7 +174,11 @@ export default function NailsPinkPalaceAdminPage() {
       // 3. Notification settings
       const storedNotifs = localStorage.getItem("npp_notification_settings");
       if (storedNotifs) {
-        setNotificationSettings(JSON.parse(storedNotifs));
+        const parsed = JSON.parse(storedNotifs);
+        setNotificationSettings(parsed);
+        if (parsed.googleWebhookUrl) {
+          setWebhookInput(parsed.googleWebhookUrl);
+        }
       }
     } catch {
       setAppointments(INITIAL_SAMPLE_APPOINTMENTS);
@@ -209,6 +229,83 @@ export default function NailsPinkPalaceAdminPage() {
       showFeedback("Configuración de notificaciones guardada");
     } catch {
       /* ignore */
+    }
+  };
+
+  const handleSaveWebhook = () => {
+    const updated: NotificationSettings = {
+      ...notificationSettings,
+      googleWebhookUrl: webhookInput.trim(),
+    };
+    saveNotificationSettings(updated);
+    showFeedback("URL de Google Calendar guardada");
+  };
+
+  const handleTestWebhook = async () => {
+    setTestWebhookStatus("testing");
+    setTestWebhookMessage("");
+    const urlToTest = webhookInput.trim() || notificationSettings.googleWebhookUrl || "";
+    if (!urlToTest) {
+      setTestWebhookStatus("error");
+      setTestWebhookMessage("Por favor ingresa primero la URL de tu Webhook de Google Apps Script.");
+      return;
+    }
+    try {
+      const res = await fetch("/api/calendar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "test",
+          webhookUrl: urlToTest,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        setTestWebhookStatus("success");
+        setTestWebhookMessage(data.message || `Conexión verificada exitosamente con el Google Calendar de ${BUSINESS_INFO.email}`);
+        saveNotificationSettings({
+          ...notificationSettings,
+          googleWebhookUrl: urlToTest,
+        });
+      } else {
+        setTestWebhookStatus("error");
+        setTestWebhookMessage(data.error || "No se pudo conectar con el webhook. Revisa los permisos de la aplicación web en Google.");
+      }
+    } catch (err: unknown) {
+      setTestWebhookStatus("error");
+      setTestWebhookMessage(err instanceof Error ? err.message : "Error al conectar con el webhook.");
+    }
+  };
+
+  const handleCopyScript = () => {
+    navigator.clipboard.writeText(GOOGLE_APPS_SCRIPT_TEMPLATE);
+    setCopiedScript(true);
+    showFeedback("Código de Google Apps Script copiado al portapapeles");
+    setTimeout(() => setCopiedScript(false), 4000);
+  };
+
+  const handleSyncAppointment = async (app: Appointment) => {
+    setSyncingAppointmentId(app.id);
+    try {
+      const res = await fetch("/api/calendar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "sync",
+          appointment: app,
+          webhookUrl: notificationSettings.googleWebhookUrl,
+        }),
+      });
+      const data = await res.json();
+      if (data.synced) {
+        showFeedback(`✓ Cita de ${app.clientName} sincronizada con Google Calendar (${BUSINESS_INFO.email})`);
+      } else {
+        showFeedback(`Cita registrada para ${BUSINESS_INFO.email}`);
+      }
+    } catch {
+      showFeedback("Error al intentar sincronizar con Google Calendar");
+    } finally {
+      setSyncingAppointmentId(null);
     }
   };
 
@@ -294,6 +391,9 @@ export default function NailsPinkPalaceAdminPage() {
     const updatedApp = updated.find((a) => a.id === rescheduleTarget.id)!;
     setRescheduleTarget(null);
     showFeedback(`Cita de ${updatedApp.clientName} reagendada con éxito`);
+    if (notificationSettings.calendar) {
+      handleSyncAppointment(updatedApp);
+    }
   };
 
   const handleCreateManualAppointment = (e: React.FormEvent) => {
@@ -336,6 +436,9 @@ export default function NailsPinkPalaceAdminPage() {
     setNewClientEmail("");
     setNewNotes("");
     showFeedback("Nueva cita agendada exitosamente");
+    if (notificationSettings.calendar) {
+      handleSyncAppointment(newApp);
+    }
   };
 
   // Service Management actions
@@ -865,15 +968,29 @@ export default function NailsPinkPalaceAdminPage() {
                                 <MessageCircle className="w-4 h-4" />
                               </button>
 
-                              {/* Google Calendar CTA */}
+                              {/* Google Calendar Direct Link & Sync */}
+                              <button
+                                type="button"
+                                onClick={() => handleSyncAppointment(app)}
+                                disabled={syncingAppointmentId === app.id}
+                                title={`Sincronizar automáticamente con Google Calendar de Valentina (${BUSINESS_INFO.email})`}
+                                className="p-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors border border-blue-200 inline-flex items-center justify-center disabled:opacity-50"
+                              >
+                                {syncingAppointmentId === app.id ? (
+                                  <RefreshCw className="w-4 h-4 animate-spin text-blue-600" />
+                                ) : (
+                                  <Calendar className="w-4 h-4" />
+                                )}
+                              </button>
+
                               <a
                                 href={createGoogleCalendarUrl(app)}
                                 target="_blank"
                                 rel="noreferrer"
-                                title="Agregar a Google Calendar"
-                                className="p-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors border border-blue-200 inline-flex items-center justify-center"
+                                title={`Abrir evento en Google Calendar (${BUSINESS_INFO.email})`}
+                                className="p-2 rounded-lg bg-slate-50 text-slate-600 hover:bg-slate-100 transition-colors border border-slate-200 inline-flex items-center justify-center"
                               >
-                                <Calendar className="w-4 h-4" />
+                                <ExternalLink className="w-3.5 h-3.5" />
                               </a>
 
                               {/* Delete CTA */}
@@ -1098,35 +1215,164 @@ export default function NailsPinkPalaceAdminPage() {
                   </label>
                 </div>
 
-                {/* Google Calendar */}
-                <div className="p-4 rounded-2xl border border-gray-200 bg-[#FAF6F1]/50 flex items-start justify-between gap-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <div className="p-1.5 rounded-lg bg-blue-100 text-blue-700">
-                        <Calendar className="w-4 h-4" />
+                {/* Google Calendar - Integración Automática */}
+                <div className="p-5 rounded-2xl border-2 border-blue-200 bg-gradient-to-br from-blue-50/70 via-white to-sky-50/50 space-y-4 shadow-sm">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 rounded-xl bg-blue-600 text-white shadow-sm">
+                          <Calendar className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <strong className="text-base text-[#2B2B2B] flex items-center gap-2 flex-wrap">
+                            Google Calendar de Valentina
+                            <span className="text-[11px] font-medium bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full border border-blue-200">
+                              {BUSINESS_INFO.email}
+                            </span>
+                          </strong>
+                          <p className="text-xs text-[#2B2B2B]/75 mt-0.5">
+                            Creación automática de citas en el calendario oficial de Valentina Cobaleda ({BUSINESS_INFO.email}).
+                          </p>
+                        </div>
                       </div>
-                      <strong className="text-sm text-[#2B2B2B]">
-                        Google Calendar
-                      </strong>
                     </div>
-                    <p className="text-xs text-[#2B2B2B]/70">
-                      Sincronización automática de eventos de citas en el calendario de Valentina ({BUSINESS_INFO.email}).
-                    </p>
+                    <label className="relative inline-flex items-center cursor-pointer mt-1 shrink-0">
+                      <input
+                        type="checkbox"
+                        checked={notificationSettings.calendar}
+                        onChange={(e) =>
+                          saveNotificationSettings({
+                            ...notificationSettings,
+                            calendar: e.target.checked,
+                          })
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer mt-1">
-                    <input
-                      type="checkbox"
-                      checked={notificationSettings.calendar}
-                      onChange={(e) =>
-                        saveNotificationSettings({
-                          ...notificationSettings,
-                          calendar: e.target.checked,
-                        })
-                      }
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#E66C7D]"></div>
-                  </label>
+
+                  {/* Webhook URL Input & Test Controls */}
+                  <div className="pt-2 border-t border-blue-100/80 space-y-3">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <label className="text-xs font-semibold uppercase tracking-wider text-[#2B2B2B]/80 flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                          <span>URL del Webhook de Google Apps Script</span>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setShowScriptModal(!showScriptModal)}
+                          className="text-xs text-blue-700 hover:text-blue-900 underline font-medium"
+                        >
+                          {showScriptModal ? "Ocultar guía y código" : "¿Cómo obtener la URL en 2 min?"}
+                        </button>
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <input
+                          type="url"
+                          placeholder="https://script.google.com/macros/s/.../exec"
+                          value={webhookInput}
+                          onChange={(e) => setWebhookInput(e.target.value)}
+                          className="flex-1 px-3.5 py-2 rounded-xl border border-gray-300 text-xs bg-white text-[#2B2B2B] focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleSaveWebhook}
+                          className="px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-colors shrink-0 shadow-sm"
+                        >
+                          Guardar URL
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleTestWebhook}
+                          disabled={testWebhookStatus === "testing"}
+                          className="px-4 py-2 rounded-xl border border-blue-300 text-blue-700 bg-white text-xs font-semibold hover:bg-blue-50 transition-colors shrink-0 flex items-center gap-1.5 disabled:opacity-50"
+                        >
+                          {testWebhookStatus === "testing" ? (
+                            <>
+                              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                              <span>Probando...</span>
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
+                              <span>Probar Conexión</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Test result message */}
+                    {testWebhookMessage && (
+                      <div
+                        className={`p-3 rounded-xl text-xs flex items-start gap-2 ${
+                          testWebhookStatus === "success"
+                            ? "bg-green-50 text-green-800 border border-green-200"
+                            : "bg-red-50 text-red-800 border border-red-200"
+                        }`}
+                      >
+                        {testWebhookStatus === "success" ? (
+                          <Check className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
+                        ) : (
+                          <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                        )}
+                        <div>
+                          <strong>{testWebhookStatus === "success" ? "¡Excelente! " : "Aviso: "}</strong>
+                          <span>{testWebhookMessage}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Quick Guide & Script code accordion */}
+                    {showScriptModal && (
+                      <div className="p-4 rounded-xl bg-white border border-blue-200 text-xs space-y-3 mt-3 shadow-sm">
+                        <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+                          <h4 className="font-semibold text-sm text-[#2B2B2B]">
+                            Pasos para que las citas se creen solitas en Google Calendar
+                          </h4>
+                          <button
+                            type="button"
+                            onClick={handleCopyScript}
+                            className="px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium inline-flex items-center gap-1.5 transition-colors border border-blue-200"
+                          >
+                            {copiedScript ? (
+                              <>
+                                <Check className="w-3.5 h-3.5 text-green-600" />
+                                <span>¡Copiado!</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-3.5 h-3.5" />
+                                <span>Copiar Código</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+
+                        <ol className="list-decimal list-inside space-y-1.5 text-[#2B2B2B]/85">
+                          <li>
+                            Abre <a href="https://script.google.com" target="_blank" rel="noreferrer" className="text-blue-600 underline font-semibold">script.google.com</a> con la cuenta <strong>{BUSINESS_INFO.email}</strong>.
+                          </li>
+                          <li>Haz clic en <strong>Nuevo proyecto</strong>, borra el código que venga y pega el código copiado.</li>
+                          <li>
+                            Haz clic en el botón azul <strong>Implementar</strong> (arriba a la derecha) &gt; <strong>Nueva implementación</strong>.
+                          </li>
+                          <li>Selecciona el tipo <strong>Aplicación web</strong> (ícono de engranaje).</li>
+                          <li>Configura: <em>Ejecutar como</em>: <strong>Yo ({BUSINESS_INFO.email})</strong> y <em>Quién tiene acceso</em>: <strong>Cualquier persona</strong>.</li>
+                          <li>Haz clic en <strong>Implementar</strong>, autoriza los permisos de Google Calendar y copia la <strong>URL de la aplicación web</strong>.</li>
+                          <li>Pégala arriba en este campo y haz clic en <strong>Guardar URL</strong> y <strong>Probar Conexión</strong>. ¡A partir de ese momento cada cita que entre en la página web se creará sola en tu Google Calendar!</li>
+                        </ol>
+
+                        <div className="relative">
+                          <pre className="p-3 bg-slate-900 text-slate-100 text-[11px] rounded-lg overflow-x-auto max-h-48 font-mono leading-relaxed">
+                            {GOOGLE_APPS_SCRIPT_TEMPLATE}
+                          </pre>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Email */}
