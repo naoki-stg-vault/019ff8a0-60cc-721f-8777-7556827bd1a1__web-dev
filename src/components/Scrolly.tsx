@@ -290,6 +290,121 @@ function ProgressRail() {
 /* 01 · HERO (normal flow, entrance on load)                          */
 /* ------------------------------------------------------------------ */
 
+function HeroAbstractBg() {
+  return (
+    <div
+      className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center overflow-hidden"
+      aria-hidden="true"
+    >
+      {/* Ambient luminous glow orbs */}
+      <div
+        className="absolute -top-[12%] left-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-gradient-to-br from-flame/30 via-[#F5A623]/20 to-transparent blur-[120px] md:h-[750px] md:w-[750px] animate-pulse"
+        style={{ animationDuration: "7s" }}
+      />
+      <div
+        className="absolute top-1/4 -left-[10%] h-[360px] w-[360px] rounded-full bg-gradient-to-tr from-flame/20 via-[#E4A358]/25 to-transparent blur-[100px] md:h-[500px] md:w-[500px]"
+      />
+      <div
+        className="absolute bottom-10 -right-[8%] h-[340px] w-[340px] rounded-full bg-gradient-to-tl from-flame/20 via-[#DFB88F]/30 to-transparent blur-[90px] md:h-[460px] md:w-[460px]"
+      />
+
+      {/* Generative & architectural abstract SVG composition */}
+      <svg
+        className="absolute h-full w-full max-w-[1400px] opacity-80"
+        viewBox="0 0 1200 900"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <linearGradient id="heroGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="var(--color-flame)" stopOpacity="0.55" />
+            <stop offset="50%" stopColor="var(--color-flame)" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="var(--color-cream)" stopOpacity="0.03" />
+          </linearGradient>
+          <linearGradient id="heroGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="var(--color-flame)" stopOpacity="0.6" />
+            <stop offset="60%" stopColor="#D97706" stopOpacity="0.25" />
+            <stop offset="100%" stopColor="transparent" stopOpacity="0" />
+          </linearGradient>
+          <pattern id="heroDotGrid" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+            <circle cx="2" cy="2" r="1.3" fill="var(--color-cream)" fillOpacity="0.14" />
+          </pattern>
+        </defs>
+
+        {/* Minimal dot grids in opposite corners */}
+        <rect x="50" y="80" width="260" height="180" fill="url(#heroDotGrid)" opacity="0.65" />
+        <rect x="900" y="580" width="240" height="200" fill="url(#heroDotGrid)" opacity="0.65" />
+
+        {/* Outer tilted abstract orbit */}
+        <ellipse
+          cx="600"
+          cy="420"
+          rx="520"
+          ry="290"
+          stroke="var(--color-cream)"
+          strokeOpacity="0.08"
+          strokeWidth="1"
+          transform="rotate(16 600 420)"
+        />
+
+        {/* Intermediate dashed orbit in flame gradient */}
+        <ellipse
+          cx="600"
+          cy="420"
+          rx="450"
+          ry="250"
+          stroke="url(#heroGrad1)"
+          strokeWidth="1.5"
+          strokeDasharray="6 8"
+          transform="rotate(-12 600 420)"
+        />
+
+        {/* Inner dynamic contour orbit */}
+        <ellipse
+          cx="600"
+          cy="420"
+          rx="320"
+          ry="180"
+          stroke="url(#heroGrad2)"
+          strokeWidth="2"
+          transform="rotate(-4 600 420)"
+        />
+
+        {/* Flowing abstract wave ribbon lines */}
+        <path
+          d="M-100 520 C 250 350, 420 620, 750 430 C 980 300, 1150 480, 1300 400"
+          stroke="url(#heroGrad1)"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+        <path
+          d="M-50 450 C 300 280, 520 540, 850 380 C 1050 280, 1200 420, 1350 350"
+          stroke="var(--color-flame)"
+          strokeOpacity="0.3"
+          strokeWidth="1.5"
+          strokeDasharray="5 7"
+        />
+        <path
+          d="M-120 590 C 200 480, 480 680, 780 490 C 1000 370, 1180 560, 1320 460"
+          stroke="var(--color-cream)"
+          strokeOpacity="0.08"
+          strokeWidth="1"
+        />
+
+        {/* Aesthetic design ticks & coordinates */}
+        <g opacity="0.75">
+          <circle cx="280" cy="380" r="4.5" fill="var(--color-flame)" />
+          <circle cx="280" cy="380" r="11" stroke="var(--color-flame)" strokeWidth="1" strokeOpacity="0.45" />
+          <circle cx="930" cy="460" r="5" fill="var(--color-flame)" />
+          <circle cx="930" cy="460" r="14" stroke="var(--color-flame)" strokeWidth="1" strokeDasharray="3 3" strokeOpacity="0.5" />
+          <line x1="600" y1="120" x2="600" y2="150" stroke="var(--color-flame)" strokeWidth="1.5" strokeOpacity="0.4" />
+          <line x1="585" y1="135" x2="615" y2="135" stroke="var(--color-flame)" strokeWidth="1.5" strokeOpacity="0.4" />
+        </g>
+      </svg>
+    </div>
+  );
+}
+
 function Hero({ t, lang }: { t: Copy; lang: Lang }) {
   const [entered, setEntered] = useState(false);
   useEffect(() => {
@@ -306,6 +421,7 @@ function Hero({ t, lang }: { t: Copy; lang: Lang }) {
       id="top"
       className="relative flex min-h-svh w-full items-center justify-center overflow-hidden px-6 pt-safe-mobile md:px-14"
     >
+      <HeroAbstractBg />
       <div className="mx-auto w-full max-w-6xl">
         <div
           className="text-center"
