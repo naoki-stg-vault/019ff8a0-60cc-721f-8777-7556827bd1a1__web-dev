@@ -550,7 +550,7 @@ function PinProcess({ t, lang }: { t: Copy; lang: Lang }) {
             const border =
               o > 0.55
                 ? "2px solid var(--color-flame)"
-                : "2px solid rgba(246,236,216,0.15)";
+                : "2px solid rgba(38,30,24,0.15)";
             return (
               <div
                 key={step.title}
