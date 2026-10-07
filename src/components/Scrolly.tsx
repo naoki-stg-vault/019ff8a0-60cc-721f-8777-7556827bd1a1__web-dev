@@ -401,6 +401,16 @@ function HeroAbstractBg() {
           <line x1="585" y1="135" x2="615" y2="135" stroke="var(--color-flame)" strokeWidth="1.5" strokeOpacity="0.4" />
         </g>
       </svg>
+
+      {/* Central soft light diffused aura to keep typography clear & readable */}
+      <div
+        className="absolute left-1/2 top-[46%] -translate-x-1/2 -translate-y-1/2 h-[540px] w-[94vw] max-w-[880px] rounded-full pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse at center, rgba(255, 253, 248, 0.95) 0%, rgba(250, 246, 240, 0.88) 45%, rgba(250, 246, 240, 0.35) 75%, transparent 100%)",
+          filter: "blur(24px)",
+        }}
+      />
     </div>
   );
 }
@@ -422,7 +432,7 @@ function Hero({ t, lang }: { t: Copy; lang: Lang }) {
       className="relative flex min-h-svh w-full items-center justify-center overflow-hidden px-6 pt-safe-mobile md:px-14"
     >
       <HeroAbstractBg />
-      <div className="mx-auto w-full max-w-6xl">
+      <div className="relative z-10 mx-auto w-full max-w-6xl">
         <div
           className="text-center"
           style={{
